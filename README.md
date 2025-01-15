@@ -1,4 +1,3 @@
-/*
  ============================================================================
  
    Interpolator for Large XYZ Files with Delaunay & Bicubic Interpolation
@@ -61,4 +60,3 @@
       g++ -O2 -fopenmp -std=c++11 -o xyz2dxf xyz2dxf.cpp
    
  ============================================================================
-*/
