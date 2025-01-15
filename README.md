@@ -20,8 +20,7 @@
       conditions in a continuous manner.
    
    5. Outputs the filtered points and the grid points (with interpolated z-values)
-      to a DXF file for visualization.
-   6. Also outputs an XYZ file containing the filtered points.
+      to a DXF file for visualization and also to XYZ format.
    
    INTERPOLATION METHODS:
    -----------------------
