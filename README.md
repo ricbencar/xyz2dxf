@@ -1,5 +1,5 @@
-// xyz2dxf.cpp
-//
+\n// xyz2dxf.cpp
+\n//
 // Description:
 //   This program reads an input file with 3D points in XYZ format,
 //   filters them by a minimum distance, optionally generates a regular grid,
