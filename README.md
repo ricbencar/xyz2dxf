@@ -1,5 +1,3 @@
- ============================================================================
- 
    INTERPOLATOR FOR LARGE XYZ FILES with Delaunay & Bicubic Interpolation
    ------------------------------------------------------------------------
    This routine processes an input XYZ file (can handle thousands or millions of points)
@@ -58,5 +56,3 @@
    This code uses OpenMP for multi-threading. Compile with:
    
       g++ -O2 -fopenmp -std=c++11 -o xyz2dxf xyz2dxf.cpp
-   
- ============================================================================
