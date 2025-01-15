@@ -1,4 +1,4 @@
-   INTERPOLATOR FOR LARGE XYZ FILES with Delaunay & Bicubic Interpolation
+   XYZ2DXF interpolator for xyz files with Delaunay & Bicubic Interpolation
    ------------------------------------------------------------------------
    This routine processes an input XYZ file (can handle thousands or millions of points)
    as follows:
