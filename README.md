@@ -12,8 +12,7 @@
       point location in barycentric interpolation).
    
    3. Creates a regular grid spanning the data extent (with a margin for extrapolation).  
-      For each grid cell:
-         - Performs barycentric interpolation using the triangle that contains the 
+      For each grid cell performs barycentric interpolation using the triangle that contains the 
            grid point to produce an initial z-value.
    
    4. Applies bicubic (Catmull–Rom) interpolation on the grid to smooth the surface.
