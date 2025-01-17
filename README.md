@@ -37,16 +37,16 @@ edges.
 
 USAGE:
 ------
- interpolator <Input_File> <minDist> <Precision> <PDMODE> [Grid_Spacing]
+ interpolator <Input_File> <minDist> <Precision> <PDMODE> [Grid]
 
  Example:
- xyz2dxf data.xyz 5 2 35 10
+ xyz2dxf data.xyz 0 2 35 5
 
  - data.xyz: Input file containing points (each line: x y z or x,y,z).
- - 1.0 : Minimum distance for filtering points.
- - 3 : Precision (number of decimal places in the output DXF text labels).
- - 1 : PDMODE for DXF settings.
- - 10.0: Grid spacing for interpolation (optional).
+ - 0 : Minimum distance for filtering points.
+ - 2 : Precision (number of decimal places in the output DXF text labels).
+ - 35 : PDMODE for DXF settings.
+ - 5: Grid spacing for interpolation (optional).
 
 COMPILATION:
 ------------
