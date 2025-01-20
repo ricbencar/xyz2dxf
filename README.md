@@ -42,6 +42,7 @@ USAGE:
 COMPILATION:
 ------------
  Compile the XYZ2DXF program with optimizations and OpenMP support
+ 
  g++ -O3 -fopenmp -std=c++17 -Wall -Wextra -static -o xyz2dxf xyz2dxf.cpp
 
  Explanation of options:
