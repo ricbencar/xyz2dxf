@@ -23,8 +23,8 @@ For extremely large N, building and solving an N×N system is computationally
 expensive. Subsampling to a maximum number of points (e.g., 2000–5000) makes
 the TPS system much more tractable.
 
-USAGE:
-------
+   USAGE:
+   ------
  xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [Grid] [Lambda] [MaxTPSPoints]
 
  Example:
