@@ -45,11 +45,11 @@ COMPILATION:
  g++ -O3 -fopenmp -std=c++17 -Wall -Wextra -static -o xyz2dxf xyz2dxf.cpp
 
  Explanation of options:
- -O3 : Enable high-level optimizations for speed.
- -fopenmp: Enable OpenMP support for parallel programming.
- -std=c++17: Use the C++17 standard for syntax and library features.
- -Wall : Enable all compiler's warning messages.
- -Wextra : Enable extra warning messages.
- -static : Link all libraries statically, reducing runtime dependencies.
- -o xyz2dxf : Specify the output executable name (xyz2dxf).
- xyz2dxf.cpp : The source file to be compiled.
+ - -O3 : Enable high-level optimizations for speed.
+ - -fopenmp: Enable OpenMP support for parallel programming.
+ - -std=c++17: Use the C++17 standard for syntax and library features.
+ - -Wall : Enable all compiler's warning messages.
+ - -Wextra : Enable extra warning messages.
+ - -static : Link all libraries statically, reducing runtime dependencies.
+ - -o xyz2dxf : Specify the output executable name (xyz2dxf).
+ - xyz2dxf.cpp : The source file to be compiled.
