@@ -23,8 +23,8 @@ For extremely large N, building and solving an N×N system is computationally
 expensive. Subsampling to a maximum number of points (e.g., 2000–5000) makes
 the TPS system much more tractable.
 
-   USAGE:
-   ------
+USAGE:
+------
  xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [Grid] [Lambda] [MaxTPSPoints]
 
  Example:
@@ -41,16 +41,19 @@ the TPS system much more tractable.
 
 COMPILATION:
 ------------
- Compile the XYZ2DXF program with optimizations and OpenMP support
- 
- g++ -O3 -fopenmp -std=c++17 -Wall -Wextra -static -o xyz2dxf xyz2dxf.cpp
+ Compile the XYZ2DXF program with advanced optimizations and OpenMP support:
 
- Explanation of options:
- - -O3 : Enable high-level optimizations for speed.
- - -fopenmp: Enable OpenMP support for parallel programming.
- - -std=c++17: Use the C++17 standard for syntax and library features.
- - -Wall : Enable all compiler's warning messages.
- - -Wextra : Enable extra warning messages.
- - -static : Link all libraries statically, reducing runtime dependencies.
- - -o xyz2dxf : Specify the output executable name (xyz2dxf).
- - xyz2dxf.cpp : The source file to be compiled.
+    g++ -O3 -fopenmp -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -o xyz2dxf xyz2dxf.cpp
+
+Explanation of options:
+  - -O3                   : Enable high-level optimizations to improve execution speed.
+  - -fopenmp              : Enable OpenMP support for parallel processing.
+  - -std=c++17            : Use the C++17 standard for modern language features.
+  - -Wall                 : Activate all standard compiler warnings.
+  - -Wextra               : Activate additional warning messages for more detailed diagnostics.
+  - -static               : Link all libraries statically, reducing runtime dependencies.
+  - -static-libgcc        : Link the GCC runtime library statically.
+  - -static-libstdc++     : Link the C++ standard library statically.
+  - -o xyz2dxf            : Specify "xyz2dxf" as the output executable name.
+  - xyz2dxf.cpp           : The source file to be compiled.
+  
