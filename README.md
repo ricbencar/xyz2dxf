@@ -41,19 +41,19 @@ USAGE:
 
 COMPILATION:
 ------------
- Compile the XYZ2DXF program with advanced optimizations and OpenMP support:
+Compile the XYZ2DXF program with advanced optimizations and OpenMP support:
 
-    g++ -O3 -fopenmp -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -o xyz2dxf xyz2dxf.cpp
+x86_64-w64-mingw32-g++ -O3 -fopenmp -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -o xyz2dxf xyz2dxf.cpp
 
 Explanation of options:
-  - -O3                   : Enable high-level optimizations to improve execution speed.
-  - -fopenmp              : Enable OpenMP support for parallel processing.
-  - -std=c++17            : Use the C++17 standard for modern language features.
-  - -Wall                 : Activate all standard compiler warnings.
-  - -Wextra               : Activate additional warning messages for more detailed diagnostics.
-  - -static               : Link all libraries statically, reducing runtime dependencies.
-  - -static-libgcc        : Link the GCC runtime library statically.
-  - -static-libstdc++     : Link the C++ standard library statically.
-  - -o xyz2dxf            : Specify "xyz2dxf" as the output executable name.
-  - xyz2dxf.cpp           : The source file to be compiled.
-  
+
+- -O3 : Enables advanced compiler optimizations to maximize execution speed by generating highly efficient code.
+- -fopenmp: Enables OpenMP support, allowing the program to utilize parallel processing capabilities for improved performance on multi-core systems.
+- -std=c++17: Specifies the use of the C++17 standard for modern language features and enhanced functionality.
+- -Wall : Activates all standard compiler warnings to help identify potential issues in the code.
+- -Wextra : Enables additional, non-standard warnings for more thorough diagnostics.
+- -static : Links all libraries statically, embedding them into the executable to eliminate runtime dependencies.
+- -static-libgcc: Statically links the GCC runtime library, avoiding the need for external runtime files.
+- -static-libstdc++ : Statically links the C++ standard library, ensuring a standalone executable.
+- -o xyz2dxf: Specifies "xyz2dxf" as the name of the output executable.
+- xyz2dxf.cpp : The source file to be compiled.
