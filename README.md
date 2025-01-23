@@ -25,10 +25,10 @@ the TPS system much more tractable.
 
 USAGE:
 ------
- xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [Grid] [Lambda] [MaxTPSPoints]
+ `xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [Grid] [Lambda] [MaxTPSPoints]`
 
  Example:
- xyz2dxf data.xyz 0 2 35 5 0.01 2000
+ `xyz2dxf data.xyz 0 2 35 5 0.01 2000`
 
  - <Input_File>: Input file containing points (each line: x y z or x,y,z).
  - minDist : Minimum distance for filtering points.
@@ -44,7 +44,7 @@ COMPILATION:
 Use the following command to compile the XYZ2DXF program, incorporating advanced
 optimization techniques and support for parallel processing:
 
-x86_64-w64-mingw32-g++ -O3 -fopenmp -flto -ftree-vectorize -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -lkernel32 -lopengl32 -luuid -lcomdlg32 -o xyz2dxf xyz2dxf.cpp
+`x86_64-w64-mingw32-g++ -O3 -fopenmp -flto -ftree-vectorize -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -lkernel32 -lopengl32 -luuid -lcomdlg32 -o xyz2dxf xyz2dxf.cpp`
 
 Breakdown of Compiler Options:
 
