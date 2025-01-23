@@ -5,7 +5,7 @@ Thin Plate Spline (TPS) Interpolation:
 1. Reads the XYZ file containing points (x, y, z) and filters them using a
  grid-based method to eliminate points closer than a specified 'minDist'
  and to remove exact duplicates.
- 
+
 2. Subsamples the filtered points (if desired) to reduce the size of the TPS
  system. This makes TPS interpolation computationally feasible on huge datasets.
 
@@ -25,10 +25,10 @@ the TPS system much more tractable.
 
 USAGE:
 ------
- `xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [Grid] [Lambda] [MaxTPSPoints]`
+ xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [Grid] [Lambda] [MaxTPSPoints]
 
  Example:
- `xyz2dxf data.xyz 0 2 35 5 0.01 2000`
+ xyz2dxf data.xyz 0 2 35 5 0.01 2000
 
  - <Input_File>: Input file containing points (each line: x y z or x,y,z).
  - minDist : Minimum distance for filtering points.
@@ -41,19 +41,27 @@ USAGE:
 
 COMPILATION:
 ------------
-Compile the XYZ2DXF program with advanced optimizations and OpenMP support:
+Use the following command to compile the XYZ2DXF program, incorporating advanced
+optimization techniques and support for parallel processing:
 
-`x86_64-w64-mingw32-g++ -O3 -fopenmp -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -o xyz2dxf xyz2dxf.cpp`
+x86_64-w64-mingw32-g++ -O3 -fopenmp -flto -ftree-vectorize -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -lkernel32 -lopengl32 -luuid -lcomdlg32 -o xyz2dxf xyz2dxf.cpp
 
-Explanation of options:
+Breakdown of Compiler Options:
 
-- -O3 : Enables advanced compiler optimizations to maximize execution speed by generating highly efficient code.
-- -fopenmp: Enables OpenMP support, allowing the program to utilize parallel processing capabilities for improved performance on multi-core systems.
-- -std=c++17: Specifies the use of the C++17 standard for modern language features and enhanced functionality.
-- -Wall : Activates all standard compiler warnings to help identify potential issues in the code.
-- -Wextra : Enables additional, non-standard warnings for more thorough diagnostics.
-- -static : Links all libraries statically, embedding them into the executable to eliminate runtime dependencies.
-- -static-libgcc: Statically links the GCC runtime library, avoiding the need for external runtime files.
-- -static-libstdc++ : Statically links the C++ standard library, ensuring a standalone executable.
-- -o xyz2dxf: Specifies "xyz2dxf" as the name of the output executable.
-- xyz2dxf.cpp : The source file to be compiled.
+- -O3: High optimization level
+- -fopenmp: Enable OpenMP parallelization
+- -flto: Link-Time Optimization
+- -ftree-vectorize: SIMD code generation
+- -std=c++17: C++17 standard
+- -Wall: Enable all warnings
+- -Wextra: Additional warnings
+- -static: Static linking
+- -static-libgcc: Static GCC runtime library linking
+- -static-libstdc++: Static C++ standard library linking
+- -lkernel32: Windows kernel library
+- -lopengl32: OpenGL library
+- -luuid: UUID library
+- -lcomdlg32: Common dialog library
+
+This command ensures a robust, highly optimized executable suitable for
+performance-intensive applications while maintaining minimal runtime dependencies.
