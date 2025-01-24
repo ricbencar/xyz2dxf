@@ -112,7 +112,7 @@ To compile the XYZ2DXF application with optimal performance and parallel process
 support, use the following command (example for Windows cross-compilation with 
 MinGW-w64):
 
-    `x86_64-w64-mingw32-g++ -O3 -fopenmp -flto -ftree-vectorize -march=native -fomit-frame-pointer -funroll-loops -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -lkernel32 -lopengl32 -luuid -lcomdlg32 -o xyz2dxf xyz2dxf.cpp`
+    x86_64-w64-mingw32-g++ -O3 -fopenmp -flto -ftree-vectorize -march=native -fomit-frame-pointer -funroll-loops -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -lkernel32 -lopengl32 -luuid -lcomdlg32 -o xyz2dxf xyz2dxf.cpp
 
 Compiler Options Explained:
 - `-O3`: Enables high-level optimizations for improved performance.
