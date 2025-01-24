@@ -1,5 +1,4 @@
-XYZ2DXF Interpolator: High-Performance Processing of Large XYZ Datasets
-with Memory-Efficient Thin Plate Spline (TPS) Interpolation
+# XYZ2DXF Interpolator: High-Performance Processing of Large XYZ Datasets with Memory-Efficient Thin Plate Spline (TPS) Interpolation
 
 This program is designed to efficiently interpolate and convert large point 
 datasets from XYZ format into DXF format using Thin Plate Spline (TPS) techniques. 
