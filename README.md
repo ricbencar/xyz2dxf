@@ -1,5 +1,5 @@
-// XYZ2DXF Interpolator: High-Performance Processing of Large XYZ Datasets 
-// with Memory-Efficient Thin Plate Spline (TPS) Interpolation
+XYZ2DXF Interpolator: High-Performance Processing of Large XYZ Datasets
+with Memory-Efficient Thin Plate Spline (TPS) Interpolation
 
 This program is designed to efficiently interpolate and convert large point 
 datasets from XYZ format into DXF format using Thin Plate Spline (TPS) techniques. 
@@ -75,11 +75,11 @@ USAGE:
 ------
 To execute the program, use the following command structure:
 
-    xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [GridSpacing] [MaxTPSPoints]
+    `xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [GridSpacing] [MaxTPSPoints]`
 
 Example:
 
-    xyz2dxf data.xyz 0.5 3 35 10 10000
+    `xyz2dxf data.xyz 0.5 3 35 10 10000`
 
 Parameters:
 - `<Input_File>`: Path to the input XYZ file (formats supported: `x y z` or `x,y,z`).
@@ -112,7 +112,7 @@ To compile the XYZ2DXF application with optimal performance and parallel process
 support, use the following command (example for Windows cross-compilation with 
 MinGW-w64):
 
-    x86_64-w64-mingw32-g++ -O3 -fopenmp -flto -ftree-vectorize -march=native -fomit-frame-pointer -funroll-loops -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -lkernel32 -lopengl32 -luuid -lcomdlg32 -o xyz2dxf xyz2dxf.cpp
+    `x86_64-w64-mingw32-g++ -O3 -fopenmp -flto -ftree-vectorize -march=native -fomit-frame-pointer -funroll-loops -std=c++17 -Wall -Wextra -static -static-libgcc -static-libstdc++ -lkernel32 -lopengl32 -luuid -lcomdlg32 -o xyz2dxf xyz2dxf.cpp`
 
 Compiler Options Explained:
 - `-O3`: Enables high-level optimizations for improved performance.
