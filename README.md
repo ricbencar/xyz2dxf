@@ -75,11 +75,11 @@ USAGE:
 ------
 To execute the program, use the following command structure:
 
-    `xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [GridSpacing] [MaxTPSPoints]`
+    xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [GridSpacing] [MaxTPSPoints]
 
 Example:
 
-    `xyz2dxf data.xyz 0.5 3 35 10 10000`
+    xyz2dxf data.xyz 0.5 3 35 10 10000
 
 Parameters:
 - `<Input_File>`: Path to the input XYZ file (formats supported: `x y z` or `x,y,z`).
