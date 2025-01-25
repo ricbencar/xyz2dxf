@@ -4,9 +4,7 @@ This program efficiently interpolates and converts large point
 datasets from XYZ format into DXF format using Thin Plate Spline (TPS) techniques. 
 The latest version includes numerous optimizations for faster execution, reduced 
 memory usage, and improved interpolation accuracy through grid-based data sampling 
-and outlier handling. Additionally, the code has been refactored to eliminate 
-sign-conversion and type-related compiler warnings by utilizing `size_t` for 
-loop counters and indices, ensuring robust and warning-free compilation.
+and outlier handling.
 
 Key Features:
 ------------------------------
