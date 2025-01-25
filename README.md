@@ -131,6 +131,4 @@ MinGW-w64):
 **Recommendation:**
 To ensure compatibility with system libraries and avoid runtime issues, it is recommended to install the latest Microsoft Visual C++ Redistributable. Even though this program uses static linking (`-static`), certain system dependencies or dynamic libraries may rely on updated runtime components provided by Microsoft.
 
-You can download the latest version here:
-
-    Microsoft Visual C++ Redistributable Downloads https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170
+You can download the latest version here: (https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
