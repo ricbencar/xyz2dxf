@@ -6,7 +6,7 @@ The latest version includes numerous optimizations for faster execution, reduced
 memory usage, and improved interpolation accuracy through grid-based data sampling
 and outlier handling.
 
-<img src="https://github.com/user-attachments/assets/53fb9f36-b57e-4de4-b20e-abf992134670" width=994>
+<img src="[https://github.com/user-attachments/assets/53fb9f36-b57e-4de4-b20e-abf992134670] width=994>
 
 Key Features:
 ------------------------------
