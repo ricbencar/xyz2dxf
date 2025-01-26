@@ -1,5 +1,4 @@
-# XYZ2DXF Interpolator: High-Performance Processing of Large XYZ Datasets
-with Memory-Efficient Thin Plate Spline (TPS) Interpolation
+# XYZ2DXF Interpolator: High-Performance Processing of Large XYZ Datasets with Memory-Efficient Thin Plate Spline (TPS) Interpolation
 
 This program efficiently interpolates and converts large point
 datasets from XYZ format into DXF format using Thin Plate Spline (TPS) techniques.
@@ -132,4 +131,4 @@ To ensure compatibility with system libraries and avoid runtime issues, it is re
 
 You can download the latest version here:
 
-    Microsoft Visual C++ Redistributable Downloads https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170
+    Microsoft Visual C++ Redistributable Downloads: (https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
