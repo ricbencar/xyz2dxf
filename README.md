@@ -8,9 +8,7 @@ and outlier handling.
 
 ![xyz2dxf_gui](https://github.com/user-attachments/assets/53fb9f36-b57e-4de4-b20e-abf992134670)
 
-<img src="https://github.com/user-attachments/assets/53fb9f36-b57e-4de4-b20e-abf992134670" width="994">
-
-![](https://github.com/user-attachments/assets/53fb9f36-b57e-4de4-b20e-abf992134670) | width=994)
+<img src="https://github.com/user-attachments/assets/53fb9f36-b57e-4de4-b20e-abf992134670" width=50% height=50%>
 
 Key Features:
 ------------------------------
