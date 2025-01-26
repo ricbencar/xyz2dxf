@@ -6,7 +6,7 @@ The latest version includes numerous optimizations for faster execution, reduced
 memory usage, and improved interpolation accuracy through grid-based data sampling
 and outlier handling.
 
-![xyz2dxf_gui](https://github.com/user-attachments/assets/7bd93891-e8d1-4bda-b90c-d5ac6bead964|width=995)
+![xyz2dxf_gui](https://github.com/user-attachments/assets/12f50082-2eb3-4160-8c62-af5c341c5b64|witdh=100)
 
 Key Features:
 ------------------------------
