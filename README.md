@@ -12,13 +12,13 @@ Key Features:
    - Reads an XYZ file containing points in either (x, y, z) or (x,y,z) format.
    - Filters out points that are closer than a specified minimum distance (`minDist`)
      using a grid-based approach for efficient duplicate removal and spacing enforcement.
-     - Utilizes a flat grid structure for spatial partitioning, reducing the number of distance comparisons significantly.
+   - Utilizes a flat grid structure for spatial partitioning, reducing the number of distance comparisons significantly.
    - Outlier Removal: Implements a robust mechanism for detecting and removing
      points with "abnormal" z-values relative to their neighbors. This process
      calculates the mean and standard deviation of z-values within a local neighborhood
      (defined by `neighborDist`) and excludes points deviating beyond a user-defined
      threshold (e.g., 3 standard deviations).
-     - Fully grid-based and parallelized using OpenMP to leverage multi-core systems for faster computation.
+   - Fully grid-based and parallelized using OpenMP to leverage multi-core systems for faster computation.
 
 2. TPS Subsampling Logic:
    - Ensures high-quality interpolation by uniformly sampling the filtered points
@@ -27,27 +27,27 @@ Key Features:
      - If `maxTPSPoints > 0` and the filtered dataset contains more points than
        the limit, a uniform sampling strategy ensures evenly distributed points,
        avoiding clusters that degrade interpolation quality.
-       - Partitions the bounding box into a grid and randomly selects one point per cell.
+     - Partitions the bounding box into a grid and randomly selects one point per cell.
      - If the number of filtered points is less than or equal to `maxTPSPoints`,
        all points are used.
 
 3. Grid Construction and TPS Interpolation:
    - Constructs a regular grid that spans the spatial extent of the data, adding
      a configurable margin to ensure accurate boundary interpolation.
-     - Utilizes a parallel bounding box computation to efficiently determine grid boundaries.
+   - Utilizes a parallel bounding box computation to efficiently determine grid boundaries.
    - Interpolates z-values at each grid node using the TPS model derived from
      the selected subset of points.
-     - Optimized to pre-allocate the grid points vector and assign values directly
-       in parallel, avoiding the overhead of thread synchronization.
+   - Optimized to pre-allocate the grid points vector and assign values directly
+     in parallel, avoiding the overhead of thread synchronization.
 
 4. Optimized Output File Generation:
    - Generates three output files:
-     - A `.dxf` file containing the original filtered input points and interpolated
+     - `.dxf` file containing the original filtered input points and interpolated
        grid points, with layers for visualizing points and their labels.
        - Organizes points and labels into separate layers for better visualization.
-     - A `.filtered.xyz` file containing the final filtered points after applying
+     - `.filtered.xyz` file containing the final filtered points after applying
        minimum distance filtering and outlier removal.
-     - A `.grid.xyz` file containing the grid points generated through TPS interpolation.
+     - `.grid.xyz` file containing the grid points generated through TPS interpolation.
 
 5. Performance Enhancements:
    - Utilizes OpenMP to parallelize computationally expensive routines:
