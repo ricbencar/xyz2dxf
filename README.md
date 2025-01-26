@@ -42,12 +42,12 @@ Key Features:
 
 4. Optimized Output File Generation:
    - Generates three output files:
-     - `.dxf` file containing the original filtered input points and interpolated
-       grid points, with layers for visualizing points and their labels.
-       - Organizes points and labels into separate layers for better visualization.
-     - `.filtered.xyz` file containing the final filtered points after applying
+   - `.dxf` file containing the original filtered input points and interpolated
+     grid points, with layers for visualizing points and their labels.
+   - Organizes points and labels into separate layers for better visualization.
+   - `.filtered.xyz` file containing the final filtered points after applying
        minimum distance filtering and outlier removal.
-     - `.grid.xyz` file containing the grid points generated through TPS interpolation.
+   - `.grid.xyz` file containing the grid points generated through TPS interpolation.
 
 5. Performance Enhancements:
    - Utilizes OpenMP to parallelize computationally expensive routines:
