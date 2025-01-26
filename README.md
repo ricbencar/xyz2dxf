@@ -10,6 +10,8 @@ and outlier handling.
 
 <img src="https://github.com/user-attachments/assets/53fb9f36-b57e-4de4-b20e-abf992134670" width="994">
 
+![](https://github.com/user-attachments/assets/53fb9f36-b57e-4de4-b20e-abf992134670) | width=994)
+
 Key Features:
 ------------------------------
 1. Data Import and Filtering:
