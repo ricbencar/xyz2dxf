@@ -19,8 +19,6 @@ Key Features:
      (defined by `neighborDist`) and excludes points deviating beyond a user-defined
      threshold (e.g., 3 standard deviations).
      - Fully grid-based and parallelized using OpenMP to leverage multi-core systems for faster computation.
-   - Code Improvement: Replaced `int` loop counters with `size_t` to match
-     the unsigned nature of `std::vector::size()` and eliminate sign-conversion warnings.
 
 2. TPS Subsampling Logic:
    - Ensures high-quality interpolation by uniformly sampling the filtered points
@@ -32,8 +30,6 @@ Key Features:
        - Partitions the bounding box into a grid and randomly selects one point per cell.
      - If the number of filtered points is less than or equal to `maxTPSPoints`,
        all points are used.
-   - Code Improvement: Utilizes `size_t` for grid indices and counts to maintain
-     consistency with container sizes and prevent sign-related issues.
 
 3. Grid Construction and TPS Interpolation:
    - Constructs a regular grid that spans the spatial extent of the data, adding
@@ -43,8 +39,6 @@ Key Features:
      the selected subset of points.
      - Optimized to pre-allocate the grid points vector and assign values directly
        in parallel, avoiding the overhead of thread synchronization.
-     - Code Improvement: All grid-related indices and loop counters are now `size_t`,
-       ensuring type safety and eliminating compiler warnings related to sign conversions.
 
 4. Optimized Output File Generation:
    - Generates three output files:
@@ -54,8 +48,6 @@ Key Features:
      - A `.filtered.xyz` file containing the final filtered points after applying
        minimum distance filtering and outlier removal.
      - A `.grid.xyz` file containing the grid points generated through TPS interpolation.
-   - Code Improvement: Ensures all file-writing operations use appropriate data types
-     to prevent runtime issues and maintain data integrity.
 
 5. Performance Enhancements:
    - Utilizes OpenMP to parallelize computationally expensive routines:
@@ -69,9 +61,6 @@ Key Features:
      reducing runtime overhead.
    - Employs `reserve` and `resize` strategically to minimize memory reallocations.
    - Uses `shrink_to_fit` to free unused memory after bulk insertions.
-   - Code Improvement: All loop counters and indices are now `size_t`, aligning
-     with container sizes and preventing sign-conversion warnings. This change enhances
-     code safety and maintainability without impacting performance.
 
 6. Detailed Documentation and Robustness:
    - Each function is documented with its purpose, complexity, and usage notes.
@@ -79,8 +68,6 @@ Key Features:
      data handling, and safe defaults for grid margins and sampling.
    - Implements numerical safeguards to handle edge cases, such as degenerate
      rows during Gaussian elimination in TPS solving.
-   - Code Improvement: Refactored the TPS solver to use `size_t` for all indices
-     and dimensions, ensuring type consistency and eliminating related compiler warnings.
 
 USAGE:
 ------
