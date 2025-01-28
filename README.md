@@ -11,6 +11,9 @@ filtering, outlier removal, interpolation, and finally outputs DXF and
 additional report files. The GUI is designed to simplify the process for
 users, eliminating the need for command-line tools.
 
+![xyz2dxf_gui](https://github.com/user-attachments/assets/e7619b49-a0af-47b3-83bb-71040b76d779)
+
+
 Key Features:
 -------------
 - **Two Interpolation Methods:**
