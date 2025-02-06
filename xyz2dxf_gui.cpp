@@ -1,108 +1,192 @@
-/*****************************************************************************
+/******************************************************************************
  * XYZ to DXF Converter GUI
- * -------------------------
- * This program provides a graphical user interface (GUI) for converting
- * large XYZ datasets into DXF format using two interpolation methods:
- * - Bicubic Spline (default)
- * - Thin Plate Spline (TPS)
+ * ------------------------
+ * This program provides an intuitive and robust Graphical User Interface (GUI)
+ * designed for converting large XYZ datasets into the DXF format. It leverages
+ * two sophisticated interpolation techniques to generate high-quality surfaces:
  *
- * Users can select the input XYZ file, specify various parameters, and
- * choose the interpolation method via an intuitive GUI. The program performs
- * filtering, outlier removal, interpolation, and finally outputs DXF and
- * additional report files. The GUI is designed to simplify the process for
- * users, eliminating the need for command-line tools.
+ * - **Bicubic Spline (Default)**
+ * - **Thin Plate Spline (TPS)**
  *
- * Key Features:
- * -------------
- * - **Two Interpolation Methods:**
- *   - Bicubic Spline (default): A grid-based interpolation method.
- *   - Thin Plate Spline (TPS): Suitable for scattered data.
- *   - Selection is made using radio buttons in the GUI.
+ * **Overview:**
+ * The XYZ to DXF Converter GUI offers a streamlined workflow that allows users to:
+ * - Select an input `.xyz` file using a standard Windows file dialog.
+ * - Configure various processing parameters to suit their data and project needs.
+ * - Choose the preferred interpolation method via an easy-to-use radio button selection.
  *
- * - **File Dialog for Input File Selection:**
- *   - Provides a standard Windows file dialog for selecting input `.xyz` files.
- *   - Allows for easy navigation and selection of data files.
+ * The application performs a comprehensive series of operations including data
+ * filtering, statistical outlier removal, interpolation, and finally, output file
+ * generation in multiple formats. By eliminating the complexities of command-line
+ * operations, this GUI caters to users of all skill levels, simplifying the conversion
+ * process without sacrificing functionality.
  *
- * - **Parameter Input Fields:**
- *   - `minDist`: Minimum distance for filtering closely spaced points.
- *   - `Precision`: Number of decimal places in output files.
- *   - `PDMODE`: Specifies the drawing style for points in the DXF output.
- *   - `GridSpacing`: Distance between interpolated grid nodes.
- *   - `MaxTPSPoints`: Maximum points used for TPS interpolation (0 = all points).
+ * **Key Features:**
+ * -----------------
+ * - **Dual Interpolation Methods:**
+ *   - **Bicubic Spline (Default):** This grid-based interpolation technique is ideal
+ *     for generating smooth surfaces from regularly spaced or semi-regular datasets.
+ *   - **Thin Plate Spline (TPS):** This method is designed for scattered and irregularly
+ *     distributed data points, offering adaptive smoothing that minimizes bending energy.
+ *   - **Method Selection:** Easily switch between Bicubic Spline and TPS using dedicated
+ *     radio buttons embedded within the GUI.
  *
- * - **Detailed Status Updates:**
- *   - The status bar provides real-time feedback, showing the progress of each
- *     processing step, such as:
- *     - Points read from the file.
- *     - Points after filtering and outlier removal.
- *     - Number of grid points generated.
- *     - Total elapsed time.
+ * - **File Selection via Standard Dialog:**
+ *   - **Ease of Use:** Navigate your file system with the familiar Windows file dialog,
+ *     ensuring a smooth file selection process.
+ *   - **Flexibility:** Browse directories to locate and select your desired `.xyz` input file,
+ *     irrespective of the dataset's size.
  *
- * - **Comprehensive Output:**
- *   - **Filtered Points:** Outputs a `.filtered.xyz` file with cleaned data.
- *   - **Interpolated Grid:** Outputs a `.grid.xyz` file containing the interpolated grid points.
- *   - **DXF File:** Outputs a `.dxf` file with points and labels organized into layers.
- *   - **Detailed Report:** Outputs a `.rpt.txt` file summarizing all processing steps,
- *     parameter values, and statistics.
+ * - **Configurable Parameters:**
+ *   - **`minDist`:** Specifies the minimum allowable distance between points, effectively
+ *     filtering out duplicates or excessively clustered data.
+ *   - **`Precision`:** Determines the number of decimal places for numerical values in
+ *     the output files, allowing you to control the level of data precision.
+ *   - **`PDMODE`:** Defines the drawing style for points within the DXF output, affecting
+ *     their visual representation in CAD applications.
+ *   - **`GridSpacing`:** Sets the spatial interval between nodes in the interpolated grid,
+ *     impacting the overall resolution and detail of the generated surface.
+ *   - **`MaxTPSPoints`:** Limits the number of points used in TPS interpolation; setting
+ *     this to `0` instructs the program to use all available points.
  *
- * Compilation (Standalone Static Executable):
- * -------------------------------------------
- * Use the following command to compile:
+ * - **Real-Time Status Monitoring:**
+ *   - **Progress Feedback:** A dynamic status bar updates continuously during processing,
+ *     displaying:
+ *     - The number of points read from the input file.
+ *     - The count of points remaining after filtering and outlier removal.
+ *     - The total number of grid points generated during interpolation.
+ *     - The overall elapsed time for the conversion process.
  *
- * g++ -O3 -fopenmp -flto -march=native -std=c++17 -Wall -Wextra -pedantic -Wconversion -Wsign-conversion -static -static-libgcc -static-libstdc++ -mwindows -o xyz2dxf_gui.exe xyz2dxf_gui.cpp -lkernel32 -lopengl32 -luuid -lcomdlg32
+ * - **Comprehensive Output Generation:**
+ *   - **Filtered Data:** A `.filtered.xyz` file is produced containing the dataset after
+ *     the removal of duplicate and outlier points.
+ *   - **Interpolated Grid:** The process generates a `.grid.xyz` file representing the
+ *     interpolated surface according to the selected method.
+ *   - **DXF File:** A `.dxf` file is created, featuring organized layers for points and labels,
+ *     ensuring full compatibility with standard CAD tools.
+ *   - **Detailed Report:** A comprehensive `.rpt.txt` file is generated, summarizing all
+ *     processing steps, parameter configurations, and key statistical data for documentation.
  *
- * Compiler Options Explained:
- * ---------------------------
- * - **-O3:** Enables high-level optimizations for improved performance.
- * - **-fopenmp:** Activates OpenMP support for parallel processing capabilities.
- * - **-flto:** Enables Link-Time Optimization to enhance performance.
- * - **-march=native:** Optimizes the generated code for the host machine's architecture.
- * - **-std=c++17:** Specifies compliance with the C++17 standard.
- * - **-Wall -Wextra -pedantic:** Enables comprehensive compiler warnings for better code reliability.
- * - **-Wconversion -Wsign-conversion:** Specifically warns about type conversions that may alter values or sign.
- * - **-static -static-libgcc -static-libstdc++:** Links the standard libraries statically.
- * - **-lkernel32 -lopengl32 -luuid -lcomdlg32:** Links against specific Windows libraries.
- * - **-o xyz2dxf_gui.exe:** Specifies the output executable file name.
- * - **xyz2dxf_gui.cpp:** The source file to be compiled.
+ * **Compilation Instructions (Standalone Static Executable):**
+ * ------------------------------------------------------------
+ * To compile the program, execute the following command in your terminal:
  *
- * Recommendation:
- * ----------------
- * To ensure compatibility with system libraries and avoid runtime issues, it is
- * recommended to install the latest Microsoft Visual C++ Redistributable. Even
- * though this program uses static linking (`-static`), certain system dependencies
- * or dynamic libraries may rely on updated runtime components provided by Microsoft.
+ * ```
+ * g++ -O3 -fopenmp -march=native -std=c++17 -Wall -Wextra -pedantic \
+ *     -Wconversion -Wsign-conversion -static -static-libgcc -static-libstdc++ \
+ *     -isystem C:\MinGW\include\eigen3 -mwindows -o xyz2dxf_gui.exe \
+ *     xyz2dxf_gui.cpp -lkernel32 -lopengl32 -luuid -lcomdlg32
+ * ```
  *
- * You can download the latest version here:
- * https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170
+ * **Compiler Options Explained:**
+ *   - **`-O3`**: Activates high-level optimizations for improved performance.
+ *   - **`-fopenmp`**: Enables OpenMP support for parallel processing, speeding up data handling.
+ *   - **`-march=native`**: Optimizes the compiled code for your machine’s CPU architecture.
+ *   - **`-std=c++17`**: Utilizes the C++17 standard, ensuring modern language features.
+ *   - **`-Wall -Wextra -pedantic`**: Enables a comprehensive set of compiler warnings to promote
+ *     best coding practices.
+ *   - **`-Wconversion -Wsign-conversion`**: Warns against implicit type conversions that might lead
+ *     to data representation issues.
+ *   - **`-static -static-libgcc -static-libstdc++`**: Statically links the standard libraries, resulting
+ *     in a standalone executable that does not depend on external library installations.
+ *   - **`-isystem C:\MinGW\include\eigen3`**: Includes the Eigen library headers from the specified
+ *     directory; adjust this path if your Eigen installation differs.
+ *   - **`-mwindows`**: Specifies that this is a Windows GUI application, which suppresses the console window.
+ *   - **`-o xyz2dxf_gui.exe`**: Names the output executable file.
+ *   - **`xyz2dxf_gui.cpp`**: Indicates the source file to be compiled.
+ *   - **`-lkernel32 -lopengl32 -luuid -lcomdlg32`**: Links against essential Windows libraries for GUI
+ *     functionality and system operations.
  *
- * Interpolation Method Details:
- * ------------------------------
- * - **Bicubic Spline:**
- *   - Builds a regular grid, averages nearby points into cells, and performs
- *     bicubic interpolation across the grid nodes. Produces a smooth surface
- *     suitable for regularly spaced or semi-regular data.
+ * **Recommendation:**
+ * -------------------
+ * For optimal execution and compatibility, it is highly recommended to install the latest
+ * Microsoft Visual C++ Redistributable. Although the application employs static linking,
+ * certain system dependencies may still require the updated runtime components provided by Microsoft.
  *
- * - **Thin Plate Spline (TPS):**
- *   - Solves a system of equations to compute a smooth surface that minimizes
- *     bending energy. Suitable for scattered, irregularly spaced data.
- *   - If the number of points is large, subsampling is performed for efficiency.
+ * **Download the Latest Redistributable Here:**
+ * [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
  *
- * Steps Performed by the Program:
- * -------------------------------
- * 1. **Read Input File:** Loads 3D point data from the selected `.xyz` file.
- * 2. **Filter Points:** Applies a minimum distance filter to remove closely spaced points.
- * 3. **Z-Outlier Removal:** Removes points with z-values that deviate significantly
- *    from their local neighborhood.
- * 4. **Subsampling (TPS only):** Reduces the number of points for interpolation,
- *    if specified.
- * 5. **Interpolation:** Computes a regular grid of interpolated points using
- *    either the Bicubic Spline or TPS method.
+ * **Interpolation Method Details:**
+ * ----------------------------------
+ * An in-depth understanding of the interpolation methods will help you choose the approach
+ * that best matches your dataset characteristics and desired output quality.
+ *
+ * - **Bicubic Spline Interpolation:**
+ *   - **Applicability:**
+ *     - Best suited for datasets that are **regularly spaced** or **semi-regularly distributed**.
+ *     - Ideal when a **smooth surface** with continuous first and second derivatives is required.
+ *   - **Advantages:**
+ *     - **Smoothness:** Produces exceptionally smooth surfaces, minimizing abrupt transitions.
+ *     - **Performance:** Efficient for grid-based data, taking advantage of structured layouts.
+ *     - **Control:** Allows fine-tuning of the interpolation process through grid spacing adjustments.
+ *   - **Disadvantages:**
+ *     - **Grid Dependency:** The accuracy is influenced by the chosen grid spacing; an overly coarse grid
+ *       might miss details, while an excessively fine grid can increase computation time.
+ *     - **Limited Flexibility:** May not be optimal for highly irregular or scattered data, potentially resulting
+ *       in reduced accuracy in sparsely sampled regions.
+ *
+ * - **Thin Plate Spline (TPS) Interpolation:**
+ *   - **Applicability:**
+ *     - Excels with **scattered** and **irregularly distributed** datasets.
+ *     - Ideal for applications where **adaptive smoothing** is necessary to accommodate varying data densities.
+ *   - **Advantages:**
+ *     - **Flexibility:** Adapts seamlessly to irregular data distributions, ensuring accurate surface modeling
+ *       across different regions.
+ *     - **Smoothness:** Minimizes bending energy, resulting in natural and aesthetically pleasing curves.
+ *     - **Global Influence:** Each data point affects the entire surface, promoting consistency throughout the model.
+ *   - **Disadvantages:**
+ *     - **Computational Intensity:** The process of solving the TPS system can be demanding, particularly for large datasets;
+ *       subsampling may be required to maintain efficiency.
+ *     - **Memory Consumption:** The method requires considerable memory to handle large matrices during the interpolation.
+ *     - **Sensitivity to Outliers:** TPS can be influenced by outliers, which may distort the resulting surface if the data is not
+ *       properly preprocessed.
+ *
+ * **Summary of Interpolation Methods:**
+ * -------------------------------------
+ * The choice between Bicubic Spline and TPS depends primarily on the nature of your dataset and your specific project requirements:
+ *
+ * - **Choose Bicubic Spline if:**
+ *   - Your data is **regularly or semi-regularly spaced**.
+ *   - You require **computational efficiency** and a high degree of surface smoothness.
+ *   - The dataset is dense enough that grid spacing does not significantly affect interpolation quality.
+ *
+ * - **Choose Thin Plate Spline (TPS) if:**
+ *   - Your data is **scattered** and **irregularly distributed**.
+ *   - You need an **adaptive interpolation** method that can handle varying data densities.
+ *   - You have sufficient computational resources or are willing to use subsampling strategies to manage larger datasets.
+ *
+ * **Steps Performed by the Program:**
+ * ------------------------------------
+ * 1. **Read Input File:**
+ *    - Loads 3D point data from the selected `.xyz` file, accurately parsing each point's X, Y, and Z coordinates.
+ *
+ * 2. **Filter Points:**
+ *    - Applies a **minimum distance (`minDist`) filter** to eliminate points that are too closely spaced,
+ *      thereby reducing redundancy and enhancing processing efficiency.
+ *
+ * 3. **Z-Outlier Removal:**
+ *    - Implements a **statistical outlier removal** process based on Z-values, discarding points that significantly
+ *      deviate from their local neighborhood to improve overall data quality.
+ *
+ * 4. **Subsampling (TPS Only):**
+ *    - If TPS interpolation is selected and the dataset exceeds the specified `MaxTPSPoints`, the program will
+ *      **subsample** the data to a manageable size, ensuring efficient computation without compromising the accuracy
+ *      of the interpolated surface.
+ *
+ * 5. **Interpolation:**
+ *    - **Bicubic Spline:** Constructs a regular grid, averages points within each grid cell, and performs bicubic interpolation
+ *      across grid nodes to create a smooth, continuous surface.
+ *    - **Thin Plate Spline (TPS):** Solves a system of equations to compute a smooth surface that minimizes bending energy,
+ *      effectively adapting to the irregular distribution of data points.
+ *
  * 6. **Output Generation:**
- *    - Writes filtered points to a `.filtered.xyz` file.
- *    - Writes interpolated grid points to a `.grid.xyz` file.
- *    - Writes the final DXF file containing all data layers.
- *    - Writes a detailed `.rpt.txt` report summarizing all steps.
- *****************************************************************************/
+ *    - **Filtered Points (`.filtered.xyz`):** Saves the cleansed dataset after applying all filtering and outlier removal processes.
+ *    - **Interpolated Grid (`.grid.xyz`):** Outputs the grid generated from the interpolation process.
+ *    - **DXF File (`.dxf`):** Compiles the final DXF file with separate layers for points and labels, ensuring full compatibility
+ *      with various CAD applications.
+ *    - **Detailed Report (`.rpt.txt`):** Generates a comprehensive report that documents every processing step, the parameter
+ *      configurations used, and key statistical data, serving as a valuable reference.
+ *
+ ******************************************************************************/
 
 #include <windows.h>
 #include <commdlg.h>
@@ -122,38 +206,37 @@
 #include <random>
 #include <omp.h>
 
-// =====================
-// GUI Component IDs
-// =====================
-#define IDC_INPUT_FILE 1001
-#define IDC_MIN_DIST 1002
-#define IDC_PRECISION 1003
-#define IDC_PDMODE 1004
-#define IDC_GRID_SPACING 1005
-#define IDC_MAX_TPS_POINTS 1006
-#define IDC_BROWSE_BUTTON 1007
-#define IDC_RUN_BUTTON 1008
-#define IDC_STATUS_STATIC 1009
-#define IDC_RADIO_BICUBIC 1010
-#define IDC_RADIO_TPS 1011
+// ------------------ IMPORTANT: EIGEN ------------------
+#include <Eigen/Dense>
 
-// =====================
-// Interpolation Method
-// =====================
+/*****************************************************************************
+ * GUI Component IDs, etc.
+ ****************************************************************************/
+#define IDC_INPUT_FILE     1001
+#define IDC_MIN_DIST       1002
+#define IDC_PRECISION      1003
+#define IDC_PDMODE         1004
+#define IDC_GRID_SPACING   1005
+#define IDC_MAX_TPS_POINTS 1006
+#define IDC_BROWSE_BUTTON  1007
+#define IDC_RUN_BUTTON     1008
+#define IDC_STATUS_STATIC  1009
+#define IDC_RADIO_BICUBIC  1010
+#define IDC_RADIO_TPS      1011
+
 enum InterpolationMethod
 {
     METHOD_BICUBIC = 0,
-    METHOD_TPS = 1
+    METHOD_TPS     = 1
 };
 
-// =====================
-// Data Structures
-// =====================
+/*****************************************************************************
+ * Data Structures
+ ****************************************************************************/
 struct Point3D
 {
     double x, y, z; // 3D coordinates
 
-    // Equality check for hashing:
     bool operator==(const Point3D &other) const
     {
         return (std::fabs(x - other.x) < 1e-12 &&
@@ -162,7 +245,7 @@ struct Point3D
     }
 };
 
-// Hash functor for Point3D to enable usage in an unordered_set
+// Hash functor for Point3D to enable usage in std::unordered_set
 struct Point3DHash
 {
     size_t operator()(const Point3D &p) const
@@ -170,71 +253,69 @@ struct Point3DHash
         auto h1 = std::hash<double>{}(p.x);
         auto h2 = std::hash<double>{}(p.y);
         auto h3 = std::hash<double>{}(p.z);
-        // Combine
-        return h1 ^ (h2 + 0x9e3779b97f4a7c15ULL + (h1 << 6) + (h1 >> 2)) ^ (h3 << 2);
+
+        size_t seed = 0;
+        // Combine all three double-hashes into one seed
+        seed ^= h1 + 0x9e3779b97f4a7c15ULL + (seed << 6) + (seed >> 2);
+        seed ^= h2 + 0x9e3779b97f4a7c15ULL + (seed << 6) + (seed >> 2);
+        seed ^= h3 + 0x9e3779b97f4a7c15ULL + (seed << 6) + (seed >> 2);
+        return seed;
     }
 };
 
-// =====================
-// Function Prototypes
-// =====================
+/**
+ * \brief Holds the 16 coefficients for a bicubic polynomial patch:
+ *        z = sum_{m=0..3} sum_{n=0..3} a_{mn} * (x^m)(y^n)
+ */
+struct BicubicSpline
+{
+    double a00, a01, a02, a03;
+    double a10, a11, a12, a13;
+    double a20, a21, a22, a23;
+    double a30, a31, a32, a33;
+};
 
-// computeBoundingBox
+/*****************************************************************************
+ * Forward Declarations
+ ****************************************************************************/
+static void updateStatus(HWND hwndStatus, const std::string &message);
+static std::string openFileDialog(HWND hwnd);
 static void computeBoundingBox(const std::vector<Point3D> &points,
                                double &xMin, double &xMax,
                                double &yMin, double &yMax);
 
-// Windows file dialog
-static std::string openFileDialog(HWND hwnd);
-
-// Filters points by minDist
 static std::vector<Point3D> filterPointsGrid(const std::vector<Point3D> &points,
                                              double minDist);
-
-// Removes outliers in Z
 static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
                                             double neighborDist,
                                             double zThresholdFactor);
-
-// Subsampling for TPS
 static std::vector<Point3D> subsamplePointsUniformly(const std::vector<Point3D> &points,
                                                      size_t maxTPSPoints);
 
-// Solve TPS
+// -- TPS related:
 static void solveThinPlateSpline(const std::vector<Point3D> &pts,
                                  std::vector<double> &w,
                                  std::array<double, 3> &a);
-
-// TPS interpolation
 static double thinPlateSplineInterpolate(double x, double y,
                                          const std::vector<Point3D> &pts,
                                          const std::vector<double> &w,
                                          const std::array<double, 3> &a);
 
-// Create empty 2D grid
-static void createEmptyGrid(const std::vector<Point3D> &points,
-                            double gridSpacing,
-                            double &xMin,
-                            double &yMin,
-                            std::vector<std::vector<double>> &grid);
-
-// Generate TPS grid
-static std::vector<Point3D> generateGridPointsTPS(const std::vector<Point3D> &tpsPoints,
-                                                  double gridSpacing);
-
-// Generate Bicubic grid
+// -- Bicubic (Improved version):
 static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D> &points,
                                                       double gridSpacing);
+
+// -- TPS grid:
+static std::vector<Point3D> generateGridPointsTPS(const std::vector<Point3D> &tpsPoints,
+                                                  double gridSpacing);
 
 // Writers
 static void writeFilteredXYZ(const std::string &outputFileName,
                              const std::vector<Point3D> &filteredPoints,
                              int precision);
-
 static void writeGridXYZ(const std::string &outputFileName,
                          const std::vector<Point3D> &gridPoints,
                          int precision);
-
 static void writeDXF(const std::string &outputFileName,
                      const std::vector<Point3D> &xyzPoints,
                      const std::vector<Point3D> &gridPoints,
@@ -242,7 +323,6 @@ static void writeDXF(const std::string &outputFileName,
                      int pdmode,
                      bool hasGrid);
 
-// The main processing function
 static void processXYZtoDXF(const std::string &inputFileName,
                             double minDist,
                             int precision,
@@ -252,14 +332,44 @@ static void processXYZtoDXF(const std::string &inputFileName,
                             InterpolationMethod methodUsed,
                             std::function<void(const std::string &)> statusUpdate);
 
-// updateStatus
-static void updateStatus(HWND hwndStatus, const std::string &message);
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-// =====================
-// Function Definitions
-// =====================
+/*****************************************************************************
+ * 1) updateStatus
+ ****************************************************************************/
+static void updateStatus(HWND hwndStatus, const std::string &message)
+{
+    SetWindowTextA(hwndStatus, message.c_str());
+}
 
-// 1) computeBoundingBox
+/*****************************************************************************
+ * 2) openFileDialog
+ ****************************************************************************/
+static std::string openFileDialog(HWND hwnd)
+{
+    OPENFILENAMEA ofn;
+    char szFile[260];
+    ZeroMemory(&ofn, sizeof(ofn));
+    ZeroMemory(szFile, sizeof(szFile));
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner   = hwnd;
+    ofn.lpstrFile   = szFile;
+    ofn.nMaxFile    = sizeof(szFile);
+    ofn.lpstrFilter = "XYZ Files (*.xyz)\0*.xyz\0All Files (*.*)\0*.*\0";
+    ofn.nFilterIndex= 1;
+    ofn.Flags       = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileNameA(&ofn))
+    {
+        return std::string(ofn.lpstrFile);
+    }
+    return "";
+}
+
+/*****************************************************************************
+ * 3) computeBoundingBox
+ ****************************************************************************/
 static void computeBoundingBox(const std::vector<Point3D> &points,
                                double &xMin, double &xMax,
                                double &yMin, double &yMax)
@@ -306,42 +416,17 @@ static void computeBoundingBox(const std::vector<Point3D> &points,
 #else
     for (const auto &p : points)
     {
-        if (p.x < xMin)
-            xMin = p.x;
-        if (p.x > xMax)
-            xMax = p.x;
-        if (p.y < yMin)
-            yMin = p.y;
-        if (p.y > yMax)
-            yMax = p.y;
+        if (p.x < xMin) xMin = p.x;
+        if (p.x > xMax) xMax = p.x;
+        if (p.y < yMin) yMin = p.y;
+        if (p.y > yMax) yMax = p.y;
     }
 #endif
 }
 
-// 2) openFileDialog
-static std::string openFileDialog(HWND hwnd)
-{
-    OPENFILENAMEA ofn;
-    char szFile[260];
-    ZeroMemory(&ofn, sizeof(ofn));
-    ZeroMemory(szFile, sizeof(szFile));
-
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = hwnd;
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = "XYZ Files (*.xyz)\0*.xyz\0All Files (*.*)\0*.*\0";
-    ofn.nFilterIndex = 1;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    if (GetOpenFileNameA(&ofn))
-    {
-        return std::string(ofn.lpstrFile);
-    }
-    return "";
-}
-
-// 3) filterPointsGrid
+/*****************************************************************************
+ * 4) filterPointsGrid
+ ****************************************************************************/
 static std::vector<Point3D> filterPointsGrid(const std::vector<Point3D> &points,
                                              double minDist)
 {
@@ -350,14 +435,12 @@ static std::vector<Point3D> filterPointsGrid(const std::vector<Point3D> &points,
 
     if (minDist <= 0.0)
     {
-        // If minDist <= 0, just remove exact duplicates
+        // Just remove exact duplicates
         std::unordered_set<Point3D, Point3DHash> uniqueSet(points.begin(), points.end());
         return {uniqueSet.begin(), uniqueSet.end()};
     }
 
     double minDistSq = minDist * minDist;
-
-    // bounding box
     double xMin, xMax, yMin, yMax;
     computeBoundingBox(points, xMin, xMax, yMin, yMax);
 
@@ -368,13 +451,13 @@ static std::vector<Point3D> filterPointsGrid(const std::vector<Point3D> &points,
     std::vector<Point3D> accepted;
     accepted.reserve(points.size());
 
-    auto getGridIndex = [&](double x, double y)
+    auto getGridIndex = [&](double x, double y) -> std::pair<size_t, size_t>
     {
         size_t ix = static_cast<size_t>(std::floor((x - xMin) / minDist));
         size_t iy = static_cast<size_t>(std::floor((y - yMin) / minDist));
         ix = std::min(ix, gridSizeX - 1);
         iy = std::min(iy, gridSizeY - 1);
-        return std::make_pair(ix, iy);
+        return {ix, iy};
     };
 
 #ifdef _OPENMP
@@ -390,15 +473,18 @@ static std::vector<Point3D> filterPointsGrid(const std::vector<Point3D> &points,
             auto [ix, iy] = getGridIndex(p.x, p.y);
 
             bool tooClose = false;
-            // Check 3x3 neighbor cells
+            // Check 3x3 neighbors
             for (int gx = static_cast<int>(ix) - 1; gx <= static_cast<int>(ix) + 1 && !tooClose; gx++)
             {
                 for (int gy = static_cast<int>(iy) - 1; gy <= static_cast<int>(iy) + 1 && !tooClose; gy++)
                 {
-                    if (gx < 0 || gy < 0 || gx >= (int)gridSizeX || gy >= (int)gridSizeY)
+                    if (gx < 0 || gy < 0 ||
+                        static_cast<size_t>(gx) >= gridSizeX || static_cast<size_t>(gy) >= gridSizeY)
+                    {
                         continue;
+                    }
                     size_t neighborIdx = static_cast<size_t>(gx) * gridSizeY + static_cast<size_t>(gy);
-                    const auto &cell = grid[neighborIdx];
+                    const auto &cell   = grid[neighborIdx];
                     for (const auto &q : cell)
                     {
                         double dxp = p.x - q.x;
@@ -411,7 +497,6 @@ static std::vector<Point3D> filterPointsGrid(const std::vector<Point3D> &points,
                     }
                 }
             }
-
             if (!tooClose)
             {
 #pragma omp critical
@@ -428,19 +513,22 @@ static std::vector<Point3D> filterPointsGrid(const std::vector<Point3D> &points,
         }
     }
 #else
+    // Non-OMP version
     for (const auto &p : points)
     {
         auto [ix, iy] = getGridIndex(p.x, p.y);
-
         bool tooClose = false;
-        for (int gx = (int)ix - 1; gx <= (int)ix + 1 && !tooClose; gx++)
+        for (int gx = static_cast<int>(ix) - 1; gx <= static_cast<int>(ix) + 1 && !tooClose; gx++)
         {
-            for (int gy = (int)iy - 1; gy <= (int)iy + 1 && !tooClose; gy++)
+            for (int gy = static_cast<int>(iy) - 1; gy <= static_cast<int>(iy) + 1 && !tooClose; gy++)
             {
-                if (gx < 0 || gy < 0 || gx >= (int)gridSizeX || gy >= (int)gridSizeY)
+                if (gx < 0 || gy < 0 ||
+                    static_cast<size_t>(gx) >= gridSizeX || static_cast<size_t>(gy) >= gridSizeY)
+                {
                     continue;
-                size_t neighborIdx = (size_t)gx * gridSizeY + (size_t)gy;
-                const auto &cell = grid[neighborIdx];
+                }
+                size_t neighborIdx = static_cast<size_t>(gx) * gridSizeY + static_cast<size_t>(gy);
+                const auto &cell   = grid[neighborIdx];
                 for (const auto &q : cell)
                 {
                     double dxp = p.x - q.x;
@@ -453,7 +541,6 @@ static std::vector<Point3D> filterPointsGrid(const std::vector<Point3D> &points,
                 }
             }
         }
-
         if (!tooClose)
         {
             grid[ix * gridSizeY + iy].push_back(p);
@@ -461,21 +548,20 @@ static std::vector<Point3D> filterPointsGrid(const std::vector<Point3D> &points,
         }
     }
 #endif
-
     accepted.shrink_to_fit();
     return accepted;
 }
 
-// 4) removeZOutliers
+/*****************************************************************************
+ * 5) removeZOutliers
+ ****************************************************************************/
 static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
                                             double neighborDist,
                                             double zThresholdFactor)
 {
-    if (points.empty())
-        return points;
+    if (points.empty()) return points;
 
     double neighborDistSq = neighborDist * neighborDist;
-
     double xMin, xMax, yMin, yMax;
     computeBoundingBox(points, xMin, xMax, yMin, yMax);
 
@@ -483,15 +569,13 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
     size_t gridSizeY = static_cast<size_t>(std::ceil((yMax - yMin) / neighborDist)) + 1;
     std::vector<std::vector<size_t>> grid(gridSizeX * gridSizeY);
 
-    // Populate grid w/ indices
+    // Bin points by cell
     for (size_t i = 0; i < points.size(); i++)
     {
-        size_t ix = (size_t)std::floor((points[i].x - xMin) / neighborDist);
-        size_t iy = (size_t)std::floor((points[i].y - yMin) / neighborDist);
-        if (ix >= gridSizeX)
-            ix = gridSizeX - 1;
-        if (iy >= gridSizeY)
-            iy = gridSizeY - 1;
+        size_t ix = static_cast<size_t>(std::floor((points[i].x - xMin) / neighborDist));
+        size_t iy = static_cast<size_t>(std::floor((points[i].y - yMin) / neighborDist));
+        if (ix >= gridSizeX) ix = gridSizeX - 1;
+        if (iy >= gridSizeY) iy = gridSizeY - 1;
         grid[ix * gridSizeY + iy].push_back(i);
     }
 
@@ -508,26 +592,25 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
         for (size_t i = 0; i < points.size(); i++)
         {
             const Point3D &pi = points[i];
-            size_t ix = (size_t)std::floor((pi.x - xMin) / neighborDist);
-            size_t iy = (size_t)std::floor((pi.y - yMin) / neighborDist);
-            if (ix >= gridSizeX)
-                ix = gridSizeX - 1;
-            if (iy >= gridSizeY)
-                iy = gridSizeY - 1;
+            size_t ix = static_cast<size_t>(std::floor((pi.x - xMin) / neighborDist));
+            size_t iy = static_cast<size_t>(std::floor((pi.y - yMin) / neighborDist));
+            if (ix >= gridSizeX) ix = gridSizeX - 1;
+            if (iy >= gridSizeY) iy = gridSizeY - 1;
 
-            double sumZ = 0.0;
+            double sumZ  = 0.0;
             double sumZ2 = 0.0;
             size_t count = 0;
 
+            // 3x3 neighbors
             for (int gx = (int)ix - 1; gx <= (int)ix + 1; gx++)
             {
                 for (int gy = (int)iy - 1; gy <= (int)iy + 1; gy++)
                 {
-                    if (gx < 0 || gy < 0 || gx >= (int)gridSizeX || gy >= (int)gridSizeY)
+                    if (gx < 0 || gy < 0 || 
+                        (size_t)gx >= gridSizeX || (size_t)gy >= gridSizeY)
                         continue;
                     size_t neighborIdx = (size_t)gx * gridSizeY + (size_t)gy;
-                    const auto &cell = grid[neighborIdx];
-                    for (auto j : cell)
+                    for (auto j : grid[neighborIdx])
                     {
                         const Point3D &pj = points[j];
                         double dx = pi.x - pj.x;
@@ -535,8 +618,8 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
                         double distSq = dx * dx + dy * dy;
                         if (distSq <= neighborDistSq)
                         {
-                            sumZ += pj.z;
-                            sumZ2 += (pj.z * pj.z);
+                            sumZ  += pj.z;
+                            sumZ2 += pj.z * pj.z;
                             count++;
                         }
                     }
@@ -549,12 +632,11 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
             }
             else
             {
-                double meanZ = sumZ / (double)count;
-                double varZ = (sumZ2 / (double)count) - (meanZ * meanZ);
-                if (varZ < 0.0)
-                    varZ = 0.0;
+                double meanZ  = sumZ / (double)count;
+                double varZ   = (sumZ2 / (double)count) - (meanZ * meanZ);
+                if (varZ < 0.0) varZ = 0.0;
                 double stdevZ = std::sqrt(varZ);
-                double diffZ = std::fabs(pi.z - meanZ);
+                double diffZ  = std::fabs(pi.z - meanZ);
 
                 if (diffZ <= zThresholdFactor * stdevZ)
                 {
@@ -569,17 +651,16 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
         }
     }
 #else
+    // Non-OMP version
     for (size_t i = 0; i < points.size(); i++)
     {
         const Point3D &pi = points[i];
         size_t ix = (size_t)std::floor((pi.x - xMin) / neighborDist);
         size_t iy = (size_t)std::floor((pi.y - yMin) / neighborDist);
-        if (ix >= gridSizeX)
-            ix = gridSizeX - 1;
-        if (iy >= gridSizeY)
-            iy = gridSizeY - 1;
+        if (ix >= gridSizeX) ix = gridSizeX - 1;
+        if (iy >= gridSizeY) iy = gridSizeY - 1;
 
-        double sumZ = 0.0;
+        double sumZ  = 0.0;
         double sumZ2 = 0.0;
         size_t count = 0;
 
@@ -587,11 +668,11 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
         {
             for (int gy = (int)iy - 1; gy <= (int)iy + 1; gy++)
             {
-                if (gx < 0 || gy < 0 || gx >= (int)gridSizeX || gy >= (int)gridSizeY)
+                if (gx < 0 || gy < 0 || 
+                    (size_t)gx >= gridSizeX || (size_t)gy >= gridSizeY)
                     continue;
                 size_t neighborIdx = (size_t)gx * gridSizeY + (size_t)gy;
-                const auto &cell = grid[neighborIdx];
-                for (auto j : cell)
+                for (auto j : grid[neighborIdx])
                 {
                     const Point3D &pj = points[j];
                     double dx = pi.x - pj.x;
@@ -599,7 +680,7 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
                     double distSq = dx * dx + dy * dy;
                     if (distSq <= neighborDistSq)
                     {
-                        sumZ += pj.z;
+                        sumZ  += pj.z;
                         sumZ2 += (pj.z * pj.z);
                         count++;
                     }
@@ -613,12 +694,11 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
         }
         else
         {
-            double meanZ = sumZ / (double)count;
-            double varZ = (sumZ2 / (double)count) - (meanZ * meanZ);
-            if (varZ < 0.0)
-                varZ = 0.0;
+            double meanZ  = sumZ / (double)count;
+            double varZ   = (sumZ2 / (double)count) - (meanZ * meanZ);
+            if (varZ < 0.0) varZ = 0.0;
             double stdevZ = std::sqrt(varZ);
-            double diffZ = std::fabs(pi.z - meanZ);
+            double diffZ  = std::fabs(pi.z - meanZ);
 
             if (diffZ <= zThresholdFactor * stdevZ)
             {
@@ -632,7 +712,9 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
     return finalResult;
 }
 
-// 5) subsamplePointsUniformly
+/*****************************************************************************
+ * 6) Subsampling for TPS
+ ****************************************************************************/
 static std::vector<Point3D> subsamplePointsUniformly(const std::vector<Point3D> &points,
                                                      size_t maxTPSPoints)
 {
@@ -645,12 +727,10 @@ static std::vector<Point3D> subsamplePointsUniformly(const std::vector<Point3D> 
     computeBoundingBox(points, xMin, xMax, yMin, yMax);
 
     size_t gridCount = (size_t)std::ceil(std::sqrt((double)maxTPSPoints));
-    double cellWidth = (xMax - xMin) / (double)gridCount;
+    double cellWidth  = (xMax - xMin) / (double)gridCount;
     double cellHeight = (yMax - yMin) / (double)gridCount;
-    if (cellWidth <= 0.0)
-        cellWidth = 1e-12;
-    if (cellHeight <= 0.0)
-        cellHeight = 1e-12;
+    if (cellWidth  <= 0.0) cellWidth  = 1e-12;
+    if (cellHeight <= 0.0) cellHeight = 1e-12;
 
     std::vector<std::vector<size_t>> cells(gridCount * gridCount);
 
@@ -658,10 +738,8 @@ static std::vector<Point3D> subsamplePointsUniformly(const std::vector<Point3D> 
     {
         size_t ix = (size_t)std::floor((x - xMin) / cellWidth);
         size_t iy = (size_t)std::floor((y - yMin) / cellHeight);
-        if (ix >= gridCount)
-            ix = gridCount - 1;
-        if (iy >= gridCount)
-            iy = gridCount - 1;
+        if (ix >= gridCount) ix = gridCount - 1;
+        if (iy >= gridCount) iy = gridCount - 1;
         return std::make_pair(ix, iy);
     };
 
@@ -697,7 +775,9 @@ static std::vector<Point3D> subsamplePointsUniformly(const std::vector<Point3D> 
     return selectedPoints;
 }
 
-// 6) solveThinPlateSpline (no sign warnings)
+/*****************************************************************************
+ * 7) Solve Thin Plate Spline (manual approach)
+ ****************************************************************************/
 static void solveThinPlateSpline(const std::vector<Point3D> &pts,
                                  std::vector<double> &w,
                                  std::array<double, 3> &a)
@@ -710,12 +790,11 @@ static void solveThinPlateSpline(const std::vector<Point3D> &pts,
         return;
     }
 
-    // A is (n+3) x (n+3)
+    // (Same old manual approach)
     std::vector<std::vector<double>> A(n + 3, std::vector<double>(n + 3, 0.0));
     std::vector<double> B_vec(n + 3, 0.0);
 
     const double eps = 1e-12;
-    // Fill K matrix
     for (size_t i = 0; i < n; i++)
     {
         for (size_t j = 0; j < n; j++)
@@ -734,26 +813,25 @@ static void solveThinPlateSpline(const std::vector<Point3D> &pts,
         }
         B_vec[i] = pts[i].z;
     }
-
     // Fill P
     for (size_t i = 0; i < n; i++)
     {
-        A[i][n] = 1.0;
+        A[i][n]     = 1.0;
         A[i][n + 1] = pts[i].x;
         A[i][n + 2] = pts[i].y;
 
-        A[n][i] = 1.0;
+        A[n][i]     = 1.0;
         A[n + 1][i] = pts[i].x;
         A[n + 2][i] = pts[i].y;
     }
 
     // Gaussian elimination
-    for (size_t c = 0; c < (n + 3); c++)
+    for (size_t c = 0; c < n + 3; c++)
     {
         // pivot
         size_t pivot = c;
         double maxVal = std::fabs(A[c][c]);
-        for (size_t r = c + 1; r < (n + 3); r++)
+        for (size_t r = c + 1; r < n + 3; r++)
         {
             if (std::fabs(A[r][c]) > maxVal)
             {
@@ -767,33 +845,31 @@ static void solveThinPlateSpline(const std::vector<Point3D> &pts,
             std::swap(B_vec[c], B_vec[pivot]);
         }
         if (std::fabs(A[c][c]) < 1e-20)
-        {
             continue;
-        }
+
         double pivotVal = A[c][c];
-        for (size_t j = c; j < (n + 3); j++)
+        for (size_t j = c; j < n + 3; j++)
         {
             A[c][j] /= pivotVal;
         }
         B_vec[c] /= pivotVal;
 
-        for (size_t r = c + 1; r < (n + 3); r++)
+        for (size_t r = c + 1; r < n + 3; r++)
         {
             double factor = A[r][c];
-            for (size_t j = c; j < (n + 3); j++)
+            for (size_t j = c; j < n + 3; j++)
             {
                 A[r][j] -= factor * A[c][j];
             }
             B_vec[r] -= factor * B_vec[c];
         }
     }
-
-    // Back-substitution using size_t loop to avoid sign warnings
-    for (size_t c2 = (n + 3); c2 > 0; c2--)
+    // Back-substitute
+    for (size_t c2 = n + 3; c2 > 0; c2--)
     {
         size_t c = c2 - 1;
         double sum = 0.0;
-        for (size_t j = c + 1; j < (n + 3); j++)
+        for (size_t j = c + 1; j < n + 3; j++)
         {
             sum += A[c][j] * B_vec[j];
         }
@@ -813,7 +889,9 @@ static void solveThinPlateSpline(const std::vector<Point3D> &pts,
     a[2] = B_vec[n + 2];
 }
 
-// 7) TPS interpolation
+/*****************************************************************************
+ * 8) thinPlateSplineInterpolate
+ ****************************************************************************/
 static double thinPlateSplineInterpolate(double x, double y,
                                          const std::vector<Point3D> &pts,
                                          const std::vector<double> &w,
@@ -822,7 +900,7 @@ static double thinPlateSplineInterpolate(double x, double y,
     double val = a[0] + a[1] * x + a[2] * y;
     const double eps = 1e-12;
 #ifdef _OPENMP
-#pragma omp parallel for reduction(+ : val) schedule(static)
+#pragma omp parallel for reduction(+ : val)
 #endif
     for (size_t i = 0; i < pts.size(); i++)
     {
@@ -837,65 +915,455 @@ static double thinPlateSplineInterpolate(double x, double y,
     return val;
 }
 
-// createEmptyGrid
-static void createEmptyGrid(const std::vector<Point3D> &points,
-                            double gridSpacing,
-                            double &xMin,
-                            double &yMin,
-                            std::vector<std::vector<double>> &grid)
+/*****************************************************************************
+ * Reflection / Hole-Filling Helpers for Bicubic
+ ****************************************************************************/
+// Reflect a coordinate about [minVal, maxVal] in a “mirror” pattern.
+static double reflectCoordinate(double val, double minVal, double maxVal)
 {
-    double xMax, yMax;
-    computeBoundingBox(points, xMin, xMax, yMin, yMax);
+    if (minVal >= maxVal) return val; // degenerate case
+    double range = maxVal - minVal;
+    // shift into [0, 2*range)
+    double t = std::fmod(val - minVal, 2.0 * range);
+    if (t < 0.0) t += 2.0 * range;
 
+    // mirror if t in [range, 2*range)
+    if (t > range) t = 2.0 * range - t;
+    return minVal + t;
+}
+
+// Fill holes (NaNs) in zGrid by averaging neighbor cells repeatedly.
+static void fillMissingCells(Eigen::MatrixXd &zGrid, int maxIters = 10)
+{
+    const Eigen::Index Nx = zGrid.rows();
+    const Eigen::Index Ny = zGrid.cols();
+
+    for (int iter = 0; iter < maxIters; iter++)
+    {
+        bool changed = false;
+
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for (Eigen::Index i = 0; i < Nx; i++)
+        {
+            for (Eigen::Index j = 0; j < Ny; j++)
+            {
+                if (std::isnan(zGrid(i, j)))
+                {
+                    double sum   = 0.0;
+                    int    count = 0;
+
+                    // 8 neighbors
+                    for (Eigen::Index di = -1; di <= 1; di++)
+                    {
+                        for (Eigen::Index dj = -1; dj <= 1; dj++)
+                        {
+                            if (di == 0 && dj == 0) continue;
+                            Eigen::Index ni = i + di;
+                            Eigen::Index nj = j + dj;
+                            if (ni < 0 || nj < 0 || ni >= Nx || nj >= Ny)
+                                continue;
+                            double val = zGrid(ni, nj);
+                            if (!std::isnan(val))
+                            {
+                                sum += val;
+                                count++;
+                            }
+                        }
+                    }
+                    if (count > 0)
+                    {
+                        double newVal = sum / double(count);
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+                        {
+                            zGrid(i, j) = newVal;
+                            changed     = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (!changed) break;
+    }
+    // Force any remaining NaNs to 0.0
+    for (Eigen::Index i = 0; i < Nx; i++)
+    {
+        for (Eigen::Index j = 0; j < Ny; j++)
+        {
+            if (std::isnan(zGrid(i, j)))
+            {
+                zGrid(i, j) = 0.0;
+            }
+        }
+    }
+}
+
+// Compute derivatives (dz/dx, dz/dy, d2z/dxdy) using finite differences
+static void computeDerivativesEigen(const Eigen::MatrixXd &zGrid,
+                                    std::vector<std::vector<double>> &dzdx,
+                                    std::vector<std::vector<double>> &dzdy,
+                                    std::vector<std::vector<double>> &d2zdxdy)
+{
+    Eigen::Index Nx = zGrid.rows();
+    Eigen::Index Ny = zGrid.cols();
+
+    dzdx.assign(size_t(Nx), std::vector<double>(size_t(Ny), 0.0));
+    dzdy.assign(size_t(Nx), std::vector<double>(size_t(Ny), 0.0));
+    d2zdxdy.assign(size_t(Nx), std::vector<double>(size_t(Ny), 0.0));
+
+    // For x-derivative
+    for (Eigen::Index i = 1; i < Nx - 1; i++)
+    {
+        for (Eigen::Index j = 0; j < Ny; j++)
+        {
+            dzdx[size_t(i)][size_t(j)] = 0.5 * (zGrid(i + 1, j) - zGrid(i - 1, j));
+        }
+    }
+    // Boundary rows
+    for (Eigen::Index j = 0; j < Ny; j++)
+    {
+        dzdx[0][size_t(j)]            = zGrid(1, j)   - zGrid(0, j);
+        dzdx[size_t(Nx - 1)][size_t(j)] = zGrid(Nx - 1, j) - zGrid(Nx - 2, j);
+    }
+
+    // For y-derivative
+    for (Eigen::Index i = 0; i < Nx; i++)
+    {
+        for (Eigen::Index j = 1; j < Ny - 1; j++)
+        {
+            dzdy[size_t(i)][size_t(j)] = 0.5 * (zGrid(i, j + 1) - zGrid(i, j - 1));
+        }
+    }
+    // Boundary cols
+    for (Eigen::Index i = 0; i < Nx; i++)
+    {
+        dzdy[size_t(i)][0]            = zGrid(i, 1)   - zGrid(i, 0);
+        dzdy[size_t(i)][size_t(Ny - 1)] = zGrid(i, Ny - 1) - zGrid(i, Ny - 2);
+    }
+
+    // Cross derivative
+    for (Eigen::Index i = 1; i < Nx - 1; i++)
+    {
+        for (Eigen::Index j = 1; j < Ny - 1; j++)
+        {
+            d2zdxdy[size_t(i)][size_t(j)] =
+                0.25 * ( zGrid(i + 1, j + 1) - zGrid(i + 1, j - 1)
+                        -zGrid(i - 1, j + 1) + zGrid(i - 1, j - 1));
+        }
+    }
+    // Edges -> 0
+    for (Eigen::Index i = 0; i < Nx; i++)
+    {
+        d2zdxdy[size_t(i)][0]               = 0.0;
+        d2zdxdy[size_t(i)][size_t(Ny - 1)]  = 0.0;
+    }
+    for (Eigen::Index j = 0; j < Ny; j++)
+    {
+        d2zdxdy[0][size_t(j)]               = 0.0;
+        d2zdxdy[size_t(Nx - 1)][size_t(j)]  = 0.0;
+    }
+}
+
+/*****************************************************************************
+ * 9) generateGridPointsBicubic (IMPROVED)
+ ****************************************************************************/
+static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D> &points,
+                                                      double gridSpacing)
+{
+    if (points.empty())
+        return {};
+
+    // 1) bounding box
+    double dataXMin, dataXMax, dataYMin, dataYMax;
+    computeBoundingBox(points, dataXMin, dataXMax, dataYMin, dataYMax);
+
+    // 2) expand bounds
+    double margin = 1.5 * gridSpacing;
+    double xMin = dataXMin - margin;
+    double xMax = dataXMax + margin;
+    double yMin = dataYMin - margin;
+    double yMax = dataYMax + margin;
+
+    double width  = xMax - xMin;
+    double height = yMax - yMin;
+    if (width  <= 0.0) width  = 1.0;
+    if (height <= 0.0) height = 1.0;
+
+    Eigen::Index Nx = Eigen::Index(std::ceil(width  / gridSpacing)) + 1;
+    Eigen::Index Ny = Eigen::Index(std::ceil(height / gridSpacing)) + 1;
+
+    // Create a zGrid of Nx x Ny
+    Eigen::MatrixXd zGrid(Nx, Ny);
+    zGrid.setConstant(std::numeric_limits<double>::quiet_NaN());
+
+    // reflection-based indexing
+    auto clampIndex = [&](double coord, double cmin, double cmax,
+                          double spacing, Eigen::Index NxOrNy) -> Eigen::Index
+    {
+        double rc = reflectCoordinate(coord, cmin, cmax);
+        double offset = rc - cmin;
+        Eigen::Index idx = (Eigen::Index)std::floor(offset / spacing);
+        if (idx < 0)       idx = 0;
+        if (idx >= NxOrNy) idx = NxOrNy - 1;
+        return idx;
+    };
+
+    // countGrid for averaging
+    Eigen::MatrixXi countGrid = Eigen::MatrixXi::Zero(Nx, Ny);
+
+    // 4) Bin each real point into the grid
+    for (const auto &p : points)
+    {
+        Eigen::Index ix = clampIndex(p.x, xMin, xMax, gridSpacing, Nx);
+        Eigen::Index iy = clampIndex(p.y, yMin, yMax, gridSpacing, Ny);
+
+        if (std::isnan(zGrid(ix, iy)))
+        {
+            zGrid(ix, iy) = p.z;
+        }
+        else
+        {
+            zGrid(ix, iy) += p.z;
+        }
+        countGrid(ix, iy) += 1;
+    }
+
+    // 4b) average where we have sums
+    for (Eigen::Index i = 0; i < Nx; i++)
+    {
+        for (Eigen::Index j = 0; j < Ny; j++)
+        {
+            if (countGrid(i, j) > 0)
+            {
+                zGrid(i, j) /= double(countGrid(i, j));
+            }
+        }
+    }
+
+    // 5) fill holes
+    fillMissingCells(zGrid, 10);
+
+    // 6) partial derivatives
+    std::vector<std::vector<double>> dzdx, dzdy, d2zdxdy;
+    computeDerivativesEigen(zGrid, dzdx, dzdy, d2zdxdy);
+
+    // 7) Precompute local bicubic coefficients
+    std::vector<std::vector<BicubicSpline>> splineGrid(
+        size_t(Nx - 1),
+        std::vector<BicubicSpline>(size_t(Ny - 1)));
+
+    for (Eigen::Index i = 0; i < Nx - 1; i++)
+    {
+        for (Eigen::Index j = 0; j < Ny - 1; j++)
+        {
+            double f00 = zGrid(i,     j);
+            double f01 = zGrid(i,     j + 1);
+            double f10 = zGrid(i + 1, j);
+            double f11 = zGrid(i + 1, j + 1);
+
+            double fx00 = dzdx[size_t(i)][size_t(j)];
+            double fx01 = dzdx[size_t(i)][size_t(j + 1)];
+            double fx10 = dzdx[size_t(i + 1)][size_t(j)];
+            double fx11 = dzdx[size_t(i + 1)][size_t(j + 1)];
+
+            double fy00 = dzdy[size_t(i)][size_t(j)];
+            double fy01 = dzdy[size_t(i)][size_t(j + 1)];
+            double fy10 = dzdy[size_t(i + 1)][size_t(j)];
+            double fy11 = dzdy[size_t(i + 1)][size_t(j + 1)];
+
+            double fxy00 = d2zdxdy[size_t(i)][size_t(j)];
+            double fxy01 = d2zdxdy[size_t(i)][size_t(j + 1)];
+            double fxy10 = d2zdxdy[size_t(i + 1)][size_t(j)];
+            double fxy11 = d2zdxdy[size_t(i + 1)][size_t(j + 1)];
+
+            // Build 4 vectors
+            Eigen::Matrix4d M;
+            M << 1,  0,  0,  0,
+                 0,  0,  1,  0,
+                -3,  3, -2, -1,
+                 2, -2,  1,  1;
+
+            Eigen::Vector4d F   (f00, f01, f10, f11);
+            Eigen::Vector4d Fx  (fx00, fx01, fx10, fx11);
+            Eigen::Vector4d Fy  (fy00, fy01, fy10, fy11);
+            Eigen::Vector4d Fxy (fxy00, fxy01, fxy10, fxy11);
+
+            Eigen::Vector4d a = M * F;
+            Eigen::Vector4d b = M * Fx;
+            Eigen::Vector4d c = M * Fy;
+            Eigen::Vector4d d = M * Fxy;
+
+            BicubicSpline spline;
+            spline.a00 = a(0);  spline.a01 = a(1);  spline.a02 = a(2);  spline.a03 = a(3);
+            spline.a10 = b(0);  spline.a11 = b(1);  spline.a12 = b(2);  spline.a13 = b(3);
+            spline.a20 = c(0);  spline.a21 = c(1);  spline.a22 = c(2);  spline.a23 = c(3);
+            spline.a30 = d(0);  spline.a31 = d(1);  spline.a32 = d(2);  spline.a33 = d(3);
+
+            splineGrid[size_t(i)][size_t(j)] = spline;
+        }
+    }
+
+    // 8) Prepare final Nx-by-Ny points
+    // --------------------------------
+
+    // Create vectors to hold the X and Y coordinates of each cell:
+    std::vector<double> gridX(static_cast<size_t>(Nx));
+    std::vector<double> gridY(static_cast<size_t>(Ny));
+
+    // Fill them with [xMin..xMax], [yMin..yMax] at 'gridSpacing'
+    for (Eigen::Index i = 0; i < Nx; i++)
+    {
+        gridX[static_cast<size_t>(i)] = xMin + double(i) * gridSpacing;
+    }
+    for (Eigen::Index j = 0; j < Ny; j++)
+    {
+        gridY[static_cast<size_t>(j)] = yMin + double(j) * gridSpacing;
+    }
+
+    // We'll build the final (x,y,z) points:
+    std::vector<Point3D> bicubicPoints;
+    bicubicPoints.reserve(size_t(Nx) * size_t(Ny));
+
+#ifdef _OPENMP
+#pragma omp parallel
+#endif
+    {
+        // Each thread collects its results locally:
+        std::vector<Point3D> localPts;
+
+#ifdef _OPENMP
+        std::size_t threadCount = static_cast<std::size_t>(omp_get_max_threads());
+#else
+        std::size_t threadCount = 1;
+#endif
+        if (threadCount == 0) threadCount = 1;  // failsafe
+
+        localPts.reserve((static_cast<size_t>(Nx) * static_cast<size_t>(Ny)) / threadCount);
+
+#ifdef _OPENMP
+#pragma omp for schedule(dynamic)
+#endif
+        for (Eigen::Index i = 0; i < Nx; i++)
+        {
+            for (Eigen::Index j = 0; j < Ny; j++)
+            {
+                // Reflect final sampling coordinate:
+                double gx = reflectCoordinate(gridX[static_cast<size_t>(i)], dataXMin, dataXMax);
+                double gy = reflectCoordinate(gridY[static_cast<size_t>(j)], dataYMin, dataYMax);
+
+                // Convert (gx, gy) to local cell coords
+                double rx = (gx - xMin) / gridSpacing;
+                double ry = (gy - yMin) / gridSpacing;
+                Eigen::Index ci = static_cast<Eigen::Index>(std::floor(rx));
+                Eigen::Index cj = static_cast<Eigen::Index>(std::floor(ry));
+
+                // Clamp cell indices:
+                if (ci < 0)       ci = 0;
+                if (ci >= Nx - 1) ci = Nx - 2;
+                if (cj < 0)       cj = 0;
+                if (cj >= Ny - 1) cj = Ny - 2;
+
+                double tx = rx - double(ci);
+                double ty = ry - double(cj);
+
+                // Retrieve local patch
+                const BicubicSpline &sp = splineGrid[static_cast<size_t>(ci)][static_cast<size_t>(cj)];
+
+                // Evaluate the polynomial
+                double t2x = tx * tx, t3x = t2x * tx;
+                double t2y = ty * ty, t3y = t2y * ty;
+
+                double z =
+                    sp.a00 +
+                    sp.a01 * (ty) +       sp.a02 * (t2y) +       sp.a03 * (t3y) +
+                    sp.a10 * (tx) +       sp.a11 * (tx * ty) +   sp.a12 * (tx * t2y) +   sp.a13 * (tx * t3y) +
+                    sp.a20 * (t2x) +      sp.a21 * (t2x * ty) +  sp.a22 * (t2x * t2y) +  sp.a23 * (t2x * t3y) +
+                    sp.a30 * (t3x) +      sp.a31 * (t3x * ty) +  sp.a32 * (t3x * t2y) +  sp.a33 * (t3x * t3y);
+
+                localPts.push_back({gridX[static_cast<size_t>(i)],
+                                    gridY[static_cast<size_t>(j)],
+                                    z});
+            }
+        }
+
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+        {
+            bicubicPoints.insert(bicubicPoints.end(), localPts.begin(), localPts.end());
+        }
+    }
+
+    bicubicPoints.shrink_to_fit();
+    return bicubicPoints;
+}
+
+/*****************************************************************************
+ * 10) generateGridPointsTPS
+ ****************************************************************************/
+static std::vector<Point3D> generateGridPointsTPS(const std::vector<Point3D> &tpsPoints,
+                                                  double gridSpacing)
+{
+    // Solve TPS
+    std::vector<double> w;
+    std::array<double, 3> a;
+    solveThinPlateSpline(tpsPoints, w, a);
+
+    // bounding box
+    double xMin, xMax, yMin, yMax;
+    computeBoundingBox(tpsPoints, xMin, xMax, yMin, yMax);
     double margin = 1.5 * gridSpacing;
     xMin -= margin;
     xMax += margin;
     yMin -= margin;
     yMax += margin;
 
-    double width = xMax - xMin;
+    double width  = xMax - xMin;
     double height = yMax - yMin;
+    if (width  <= 0.0) width  = 1.0;
+    if (height <= 0.0) height = 1.0;
 
-    size_t nx = (size_t)std::ceil(width / gridSpacing) + 1U;
-    size_t ny = (size_t)std::ceil(height / gridSpacing) + 1U;
-
-    grid.assign(nx, std::vector<double>(ny, 0.0));
-}
-
-// generateGridPointsTPS
-static std::vector<Point3D> generateGridPointsTPS(const std::vector<Point3D> &tpsPoints,
-                                                  double gridSpacing)
-{
-    std::vector<double> w;
-    std::array<double, 3> a;
-    solveThinPlateSpline(tpsPoints, w, a);
-
-    double xMin, yMin;
-    std::vector<std::vector<double>> regGrid;
-    createEmptyGrid(tpsPoints, gridSpacing, xMin, yMin, regGrid);
-
-    const size_t gridSizeX = regGrid.size();
-    const size_t gridSizeY = (gridSizeX > 0) ? regGrid[0].size() : 0;
+    size_t nx = (size_t)std::ceil(width  / gridSpacing) + 1;
+    size_t ny = (size_t)std::ceil(height / gridSpacing) + 1;
 
     std::vector<Point3D> gridPoints;
-    gridPoints.reserve(gridSizeX * gridSizeY);
+    gridPoints.reserve(nx * ny);
 
 #ifdef _OPENMP
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel
 #endif
-    for (size_t i = 0; i < gridSizeX; i++)
     {
-        for (size_t j = 0; j < gridSizeY; j++)
-        {
-            double x = xMin + (double)i * gridSpacing;
-            double y = yMin + (double)j * gridSpacing;
-            double z = thinPlateSplineInterpolate(x, y, tpsPoints, w, a);
+        std::vector<Point3D> localPts;
+#ifdef _OPENMP
+        std::size_t threadCount = static_cast<std::size_t>(omp_get_max_threads());
+#else
+        std::size_t threadCount = 1;
+#endif
+        if (threadCount == 0) threadCount = 1;
 
+        localPts.reserve((nx * ny) / threadCount);
+
+#ifdef _OPENMP
+#pragma omp for nowait
+#endif
+        for (size_t i = 0; i < nx; i++)
+        {
+            for (size_t j = 0; j < ny; j++)
+            {
+                double gx = xMin + double(i) * gridSpacing;
+                double gy = yMin + double(j) * gridSpacing;
+                double gz = thinPlateSplineInterpolate(gx, gy, tpsPoints, w, a);
+                localPts.push_back({gx, gy, gz});
+            }
 #ifdef _OPENMP
 #pragma omp critical
 #endif
             {
-                gridPoints.push_back({x, y, z});
+                gridPoints.insert(gridPoints.end(), localPts.begin(), localPts.end());
+                localPts.clear();
             }
         }
     }
@@ -904,122 +1372,9 @@ static std::vector<Point3D> generateGridPointsTPS(const std::vector<Point3D> &tp
     return gridPoints;
 }
 
-// Scattered-data "Bicubic" approach
-static inline size_t clampSizeT(size_t v, size_t minV, size_t maxV)
-{
-    return (v < minV) ? minV : (v > maxV ? maxV : v);
-}
-
-static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D> &points,
-                                                      double gridSpacing)
-{
-    if (points.empty())
-        return {};
-
-    double xMin, xMax, yMin, yMax;
-    computeBoundingBox(points, xMin, xMax, yMin, yMax);
-
-    double margin = 1.5 * gridSpacing;
-    xMin -= margin;
-    xMax += margin;
-    yMin -= margin;
-    yMax += margin;
-
-    double width = xMax - xMin;
-    double height = yMax - yMin;
-    if (width <= 0.0)
-        width = 1.0;
-    if (height <= 0.0)
-        height = 1.0;
-
-    size_t Nx = (size_t)std::ceil(width / gridSpacing) + 1;
-    size_t Ny = (size_t)std::ceil(height / gridSpacing) + 1;
-
-    std::vector<double> zGrid(Nx * Ny, 0.0);
-    std::vector<int> countGrid(Nx * Ny, 0);
-
-    auto cellIndex = [&](double x, double y)
-    {
-        size_t ix = (size_t)std::floor((x - xMin) / gridSpacing);
-        size_t iy = (size_t)std::floor((y - yMin) / gridSpacing);
-        ix = clampSizeT(ix, 0, Nx - 1);
-        iy = clampSizeT(iy, 0, Ny - 1);
-        return iy * Nx + ix;
-    };
-
-    // fill
-    for (auto &p : points)
-    {
-        size_t idx = cellIndex(p.x, p.y);
-        zGrid[idx] += p.z;
-        countGrid[idx]++;
-    }
-    for (size_t i = 0; i < zGrid.size(); i++)
-    {
-        if (countGrid[i] > 0)
-        {
-            zGrid[i] /= (double)countGrid[i];
-        }
-    }
-
-    // fill empty cells from neighbors
-    for (size_t i = 0; i < Nx; i++)
-    {
-        for (size_t j = 0; j < Ny; j++)
-        {
-            size_t idx = j * Nx + i;
-            if (countGrid[idx] == 0)
-            {
-                double sumz = 0.0;
-                int sumc = 0;
-                for (int di = -1; di <= 1; di++)
-                {
-                    for (int dj = -1; dj <= 1; dj++)
-                    {
-                        int ii = (int)i + di;
-                        int jj = (int)j + dj;
-                        if (ii >= 0 && jj >= 0 && (size_t)ii < Nx && (size_t)jj < Ny)
-                        {
-                            size_t nidx = (size_t)jj * Nx + (size_t)ii;
-                            if (countGrid[nidx] > 0)
-                            {
-                                sumz += zGrid[nidx];
-                                sumc++;
-                            }
-                        }
-                    }
-                }
-                if (sumc > 0)
-                {
-                    zGrid[idx] = sumz / (double)sumc;
-                }
-                else
-                {
-                    zGrid[idx] = 0.0;
-                }
-            }
-        }
-    }
-
-    // build
-    std::vector<Point3D> bicubicGridPoints;
-    bicubicGridPoints.reserve(Nx * Ny);
-
-    for (size_t j = 0; j < Ny; j++)
-    {
-        for (size_t i = 0; i < Nx; i++)
-        {
-            double gx = xMin + (double)i * gridSpacing;
-            double gy = yMin + (double)j * gridSpacing;
-            double gz = zGrid[j * Nx + i];
-            bicubicGridPoints.push_back({gx, gy, gz});
-        }
-    }
-
-    return bicubicGridPoints;
-}
-
-// 10) Writers
+/*****************************************************************************
+ * 11) Writers
+ ****************************************************************************/
 static void writeFilteredXYZ(const std::string &outputFileName,
                              const std::vector<Point3D> &filteredPoints,
                              int precision)
@@ -1093,7 +1448,6 @@ static void writeDXF(const std::string &outputFileName,
         std::cerr << "Error creating DXF file: " << outputFileName << "\n";
         return;
     }
-
     outFile << std::fixed << std::setprecision(precision);
 
     outFile << "0\nSECTION\n2\nHEADER\n"
@@ -1102,6 +1456,7 @@ static void writeDXF(const std::string &outputFileName,
             << "9\n$PDSIZE\n40\n0.5\n"
             << "0\nENDSEC\n";
 
+    // compute bounding box
     double xmin = std::numeric_limits<double>::max();
     double xmax = -std::numeric_limits<double>::max();
     double ymin = std::numeric_limits<double>::max();
@@ -1109,32 +1464,24 @@ static void writeDXF(const std::string &outputFileName,
 
     for (auto &p : xyzPoints)
     {
-        if (p.x < xmin)
-            xmin = p.x;
-        if (p.x > xmax)
-            xmax = p.x;
-        if (p.y < ymin)
-            ymin = p.y;
-        if (p.y > ymax)
-            ymax = p.y;
+        if (p.x < xmin) xmin = p.x;
+        if (p.x > xmax) xmax = p.x;
+        if (p.y < ymin) ymin = p.y;
+        if (p.y > ymax) ymax = p.y;
     }
     if (hasGrid)
     {
         for (auto &p : gridPoints)
         {
-            if (p.x < xmin)
-                xmin = p.x;
-            if (p.x > xmax)
-                xmax = p.x;
-            if (p.y < ymin)
-                ymin = p.y;
-            if (p.y > ymax)
-                ymax = p.y;
+            if (p.x < xmin) xmin = p.x;
+            if (p.x > xmax) xmax = p.x;
+            if (p.y < ymin) ymin = p.y;
+            if (p.y > ymax) ymax = p.y;
         }
     }
 
-    double centerX = (xmin + xmax) * 0.5;
-    double centerY = (ymin + ymax) * 0.5;
+    double centerX  = 0.5 * (xmin + xmax);
+    double centerY  = 0.5 * (ymin + ymax);
     double viewSize = std::max(xmax - xmin, ymax - ymin) * 1.1;
 
     // Layers
@@ -1155,12 +1502,13 @@ static void writeDXF(const std::string &outputFileName,
             << viewSize << "\n"
             << "0\nENDTAB\n0\nENDSEC\n";
 
-    // Entities
     outFile << "0\nSECTION\n2\nENTITIES\n";
 
     std::mutex writeMutex;
 
-    auto writePointAndLabel = [&](const Point3D &p, const std::string &layerPoints, const std::string &layerLabels)
+    auto writePointAndLabel = [&](const Point3D &p,
+                                  const std::string &layerPoints,
+                                  const std::string &layerLabels)
     {
         std::ostringstream ss;
         ss << std::fixed << std::setprecision(precision);
@@ -1192,7 +1540,6 @@ static void writeDXF(const std::string &outputFileName,
     {
         writePointAndLabel(xyzPoints[i], "xyz_points", "xyz_labels");
     }
-
     if (hasGrid)
     {
 #ifdef _OPENMP
@@ -1208,7 +1555,9 @@ static void writeDXF(const std::string &outputFileName,
     outFile.close();
 }
 
-// 11) processXYZtoDXF
+/*****************************************************************************
+ * 12) processXYZtoDXF
+ ****************************************************************************/
 static void processXYZtoDXF(const std::string &inputFileName,
                             double minDist,
                             int precision,
@@ -1218,58 +1567,28 @@ static void processXYZtoDXF(const std::string &inputFileName,
                             InterpolationMethod methodUsed,
                             std::function<void(const std::string &)> statusUpdate)
 {
+    // Create a local container to record report messages.
+    std::vector<std::string> reportLines;
+
+    // A lambda that both calls the provided statusUpdate and records the message.
+    auto reportStatus = [&](const std::string &msg)
+    {
+        reportLines.push_back(msg);
+        statusUpdate(msg);
+    };
+
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    std::ostringstream report;
-
     // 1) Read input
-    statusUpdate("Reading input file...");
-    report << "Reading file: " << inputFileName << "\n";
-
+    reportStatus("Reading input file: " + inputFileName + " ...");
     std::vector<Point3D> points;
-    points.reserve(10000000);
-
     {
         std::ifstream inFile(inputFileName);
         if (!inFile.is_open())
         {
-            statusUpdate("Error: Unable to open input file.");
-            report << "Error: Unable to open input file.\n";
-            std::ofstream outRep(inputFileName + ".rpt.txt");
-            outRep << report.str();
-            outRep.close();
+            reportStatus("Error: Unable to open input file.");
             return;
         }
-
-#ifdef _OPENMP
-#pragma omp parallel
-        {
-            std::vector<Point3D> localPoints;
-            localPoints.reserve(100000);
-
-#pragma omp single nowait
-            {
-                std::string line;
-                while (std::getline(inFile, line))
-                {
-                    if (line.empty() || line[0] == '#')
-                        continue;
-                    std::replace(line.begin(), line.end(), ',', ' ');
-                    std::istringstream ss(line);
-                    Point3D p;
-                    if (ss >> p.x >> p.y >> p.z)
-                    {
-                        localPoints.push_back(p);
-                    }
-                }
-            }
-
-#pragma omp critical
-            {
-                points.insert(points.end(), localPoints.begin(), localPoints.end());
-            }
-        }
-#else
         std::string line;
         while (std::getline(inFile, line))
         {
@@ -1283,141 +1602,122 @@ static void processXYZtoDXF(const std::string &inputFileName,
                 points.push_back(p);
             }
         }
-#endif
         inFile.close();
     }
-
     if (points.empty())
     {
-        statusUpdate("Error: No valid points found in file.");
-        report << "No valid points found. Aborting.\n";
-        std::ofstream outRep(inputFileName + ".rpt.txt");
-        outRep << report.str();
-        outRep.close();
+        reportStatus("Error: No valid points found in file.");
         return;
     }
-    statusUpdate("Total points read: " + std::to_string(points.size()));
-    report << "Total points read: " << points.size() << "\n";
+    {
+        std::ostringstream msg;
+        msg << "Total points read: " << points.size();
+        reportStatus(msg.str());
+    }
 
     // 2) minDist filter
-    statusUpdate("Applying minimum distance filter...");
+    reportStatus("Filtering points (minDist) ...");
     std::vector<Point3D> filteredPoints = filterPointsGrid(points, minDist);
-    statusUpdate("Points after minDist filter: " + std::to_string(filteredPoints.size()));
-    report << "minDist=" << minDist << "\n"
-           << "Points after minDist filter: " << filteredPoints.size() << "\n";
+    {
+        std::ostringstream msg;
+        msg << "Points after minDist filter: " << filteredPoints.size();
+        reportStatus(msg.str());
+    }
 
     // 3) Z-Outlier removal
-    statusUpdate("Removing Z-outliers...");
-    double neighborDist = std::max(5.0 * minDist, 0.01);
-    double zThresholdFactor = 3.0;
+    reportStatus("Removing Z-outliers ...");
+    double neighborDist      = std::max(5.0 * minDist, 0.01);
+    double zThresholdFactor  = 3.0;
     std::vector<Point3D> noOutliers = removeZOutliers(filteredPoints,
                                                       neighborDist,
                                                       zThresholdFactor);
-    statusUpdate("Points after Z-outlier removal: " + std::to_string(noOutliers.size()));
-    report << "Z outlier removal neighborDist=" << neighborDist
-           << " zThresholdFactor=" << zThresholdFactor << "\n"
-           << "Points after Z-outlier removal: " << noOutliers.size() << "\n";
-
-    // Write final filtered set
-    std::string filteredXYZ = inputFileName + ".filtered.xyz";
-    statusUpdate("Writing filtered points to " + filteredXYZ + "...");
-    writeFilteredXYZ(filteredXYZ, noOutliers, precision);
-    report << "Filtered points written to: " << filteredXYZ << "\n"
-           << "Filtered points count: " << noOutliers.size() << "\n";
-
-    // 4) If TPS, subsample
-    size_t usedForInterpolationCount = 0;
-    std::vector<Point3D> tpsPoints;
-    if (methodUsed == METHOD_TPS)
     {
-        statusUpdate("Subsampling points for TPS...");
-        tpsPoints = subsamplePointsUniformly(noOutliers, maxTPSPoints);
-        usedForInterpolationCount = tpsPoints.size();
-        statusUpdate("Points used for TPS: " + std::to_string(tpsPoints.size()));
-        report << "maxTPSPoints=" << maxTPSPoints << "\n"
-               << "Points used for TPS: " << tpsPoints.size() << "\n";
-    }
-    else
-    {
-        // Bicubic => use all
-        usedForInterpolationCount = noOutliers.size();
-        report << "Bicubic method uses all filtered points: " << usedForInterpolationCount << "\n";
+        std::ostringstream msg;
+        msg << "Points after Z-outlier removal: " << noOutliers.size();
+        reportStatus(msg.str());
     }
 
-    // 5) Interpolation
+    // Write filtered.xyz
+    reportStatus("Writing filtered.xyz ...");
+    writeFilteredXYZ(inputFileName + ".filtered.xyz", noOutliers, precision);
+
+    // 4) Interpolation and grid generation
     std::vector<Point3D> gridPoints;
-    std::string methodName = (methodUsed == METHOD_BICUBIC) ? "Bicubic Spline" : "Thin Plate Spline";
-    statusUpdate("Performing " + methodName + " interpolation...");
-    report << "Interpolation method: " << methodName << "\n";
-
     if (methodUsed == METHOD_TPS)
     {
-        if (!tpsPoints.empty())
+        reportStatus("Subsampling for TPS...");
+        std::vector<Point3D> tpsSubset = subsamplePointsUniformly(noOutliers, maxTPSPoints);
         {
-            gridPoints = generateGridPointsTPS(tpsPoints, gridSpacing);
+            std::ostringstream msg;
+            msg << "TPS subset size: " << tpsSubset.size();
+            reportStatus(msg.str());
+        }
+        reportStatus("Generating TPS grid ...");
+        if (!tpsSubset.empty())
+        {
+            gridPoints = generateGridPointsTPS(tpsSubset, gridSpacing);
         }
     }
     else
     {
-        // Bicubic
+        reportStatus("Using Bicubic interpolation ...");
+        reportStatus("Generating Bicubic grid ...");
         if (!noOutliers.empty())
         {
             gridPoints = generateGridPointsBicubic(noOutliers, gridSpacing);
         }
     }
+    {
+        std::ostringstream msg;
+        msg << "Grid points: " << gridPoints.size();
+        reportStatus(msg.str());
+    }
 
-    statusUpdate("Grid points generated: " + std::to_string(gridPoints.size()));
-    report << "gridSpacing=" << gridSpacing << "\n"
-           << "Grid points generated: " << gridPoints.size() << "\n";
+    // 5) Write grid.xyz
+    reportStatus("Writing grid.xyz ...");
+    writeGridXYZ(inputFileName + ".grid.xyz", gridPoints, precision);
 
-    // 6) Write .grid.xyz
-    std::string gridXYZ = inputFileName + ".grid.xyz";
-    statusUpdate("Writing grid points to " + gridXYZ + "...");
-    writeGridXYZ(gridXYZ, gridPoints, precision);
-    report << "Grid points written to: " << gridXYZ << "\n"
-           << "Grid points count: " << gridPoints.size() << "\n";
-
-    // 7) Create DXF
-    std::string dxfFile = inputFileName + ".dxf";
-    statusUpdate("Generating DXF file...");
-    writeDXF(dxfFile,
+    // 6) Generate DXF
+    reportStatus("Generating DXF ...");
+    writeDXF(inputFileName + ".dxf",
              noOutliers,
              gridPoints,
              precision,
              pdmode,
              !gridPoints.empty());
-    report << "DXF file written: " << dxfFile << "\n"
-           << "PDMODE=" << pdmode << " Precision=" << precision << "\n";
 
-    // 8) Timing
-    auto endTime = std::chrono::high_resolution_clock::now();
+    // 7) Final status and report file creation
+    auto endTime   = std::chrono::high_resolution_clock::now();
     double elapsedSec = std::chrono::duration<double>(endTime - startTime).count();
-    int totalSeconds = (int)std::round(elapsedSec);
+    int totalSeconds   = (int)std::round(elapsedSec);
 
-    std::stringstream timeStream;
-    timeStream << "Total elapsed time: " << totalSeconds << " seconds";
-    statusUpdate(timeStream.str());
-    report << timeStream.str() << "\n";
-
-    // Write .rpt.txt
-    std::ofstream outRep(inputFileName + ".rpt.txt");
-    if (outRep.is_open())
     {
-        outRep << "========== xyz2dxf Detailed Report ==========\n\n";
-        outRep << report.str() << "\n";
-        outRep.close();
+        std::ostringstream finishMsg;
+        finishMsg << "Done. Total time: " << totalSeconds << " sec.";
+        reportStatus(finishMsg.str());
+    }
+
+    // Write the report file (e.g. data.xyz.rpt.txt)
+    std::string reportFileName = inputFileName + ".rpt.txt";
+    std::ofstream rptFile(reportFileName);
+    if (rptFile.is_open())
+    {
+        for (const auto &line : reportLines)
+        {
+            rptFile << line << "\n";
+        }
+        rptFile.close();
+    }
+    else
+    {
+        // If unable to create the report file, update status.
+        reportStatus("Error: Unable to create report file: " + reportFileName);
     }
 }
 
-// 12) updateStatus
-static void updateStatus(HWND hwndStatus, const std::string &message)
-{
-    SetWindowTextA(hwndStatus, message.c_str());
-}
-
-// =====================
-// Window Procedure
-// =====================
+/*****************************************************************************
+ * Window Procedure (GUI code)
+ ****************************************************************************/
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static HWND hInputFile, hMinDist, hPrecision, hPDMODE, hGridSpacing, hMaxTPSPoints;
@@ -1519,12 +1819,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             // Gather inputs
             char inputFile[260], minDistStr[64], precisionStr[64], pdModeStr[64];
             char gridSpacingStr[64], maxTPSStr[64];
-            GetWindowTextA(hInputFile, inputFile, sizeof(inputFile));
-            GetWindowTextA(hMinDist, minDistStr, sizeof(minDistStr));
-            GetWindowTextA(hPrecision, precisionStr, sizeof(precisionStr));
-            GetWindowTextA(hPDMODE, pdModeStr, sizeof(pdModeStr));
-            GetWindowTextA(hGridSpacing, gridSpacingStr, sizeof(gridSpacingStr));
-            GetWindowTextA(hMaxTPSPoints, maxTPSStr, sizeof(maxTPSStr));
+            GetWindowTextA(hInputFile,      inputFile,       sizeof(inputFile));
+            GetWindowTextA(hMinDist,        minDistStr,      sizeof(minDistStr));
+            GetWindowTextA(hPrecision,      precisionStr,    sizeof(precisionStr));
+            GetWindowTextA(hPDMODE,         pdModeStr,       sizeof(pdModeStr));
+            GetWindowTextA(hGridSpacing,    gridSpacingStr,  sizeof(gridSpacingStr));
+            GetWindowTextA(hMaxTPSPoints,   maxTPSStr,       sizeof(maxTPSStr));
 
             if (strlen(inputFile) == 0)
             {
@@ -1593,8 +1893,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 break;
             }
 
-            // Which radio button
-            InterpolationMethod methodUsed = METHOD_BICUBIC; // default
+            // Which radio?
+            InterpolationMethod methodUsed = METHOD_BICUBIC;
             if (SendMessageA(hRadioTPS, BM_GETCHECK, 0, 0) == BST_CHECKED)
             {
                 methodUsed = METHOD_TPS;
@@ -1604,14 +1904,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             updateStatus(hwndStatus, "Starting conversion...");
 
             std::thread processingThread([=]()
-                                         {
-                auto statusUpdate = [&](const std::string &msg) {
+            {
+                auto statusUpdate = [&](const std::string &msg)
+                {
                     struct StatusMessage
                     {
                         HWND hwnd;
                         std::string message;
                     };
-                    StatusMessage *sm = new StatusMessage{ hwndStatus, msg };
+                    StatusMessage* sm = new StatusMessage{ hwndStatus, msg };
                     PostMessageA(hwnd, WM_APP + 1, 0, (LPARAM)sm);
                 };
 
@@ -1625,7 +1926,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                                 statusUpdate);
 
                 // Re-enable run button
-                PostMessageA(hwnd, WM_APP + 2, 0, 0); });
+                PostMessageA(hwnd, WM_APP + 2, 0, 0);
+            });
             processingThread.detach();
         }
         break;
@@ -1637,7 +1939,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             HWND hwnd;
             std::string message;
         };
-        StatusMessage *sm = reinterpret_cast<StatusMessage *>(lParam);
+        StatusMessage* sm = reinterpret_cast<StatusMessage*>(lParam);
         if (sm)
         {
             updateStatus(sm->hwnd, sm->message);
@@ -1658,16 +1960,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProcA(hwnd, uMsg, wParam, lParam);
 }
 
-// =====================
-// WinMain
-// =====================
+/*****************************************************************************
+ * WinMain
+ ****************************************************************************/
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     const char CLASS_NAME[] = "xyz2dxfWindowClass";
 
     WNDCLASSA wc = {};
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = hInstance;
+    wc.lpfnWndProc   = WindowProc;
+    wc.hInstance     = hInstance;
     wc.lpszClassName = CLASS_NAME;
 
     RegisterClassA(&wc);
@@ -1676,7 +1978,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
                                 WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
                                 CW_USEDEFAULT, CW_USEDEFAULT, 820, 500,
                                 NULL, NULL, hInstance, NULL);
-
     if (!hwnd)
         return 0;
 
@@ -1688,6 +1989,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
         TranslateMessage(&msg);
         DispatchMessageA(&msg);
     }
-
     return 0;
 }
