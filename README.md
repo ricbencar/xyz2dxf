@@ -55,7 +55,7 @@ The application performs a comprehensive series of operations including data fil
 
 To compile the program, execute the following command in your terminal:
 
-g++ -O3 -fopenmp -march=native -std=c++17 -Wall -Wextra -pedantic -Wconversion -Wsign-conversion -static -static-libgcc -static-libstdc++ -isystem C:\MinGW\include\eigen3 -mwindows -o xyz2dxf_gui.exe xyz2dxf_gui.cpp -lkernel32 -lopengl32 -luuid -lcomdlg32
+_g++ -O3 -fopenmp -march=native -std=c++17 -Wall -Wextra -pedantic -Wconversion -Wsign-conversion -static -static-libgcc -static-libstdc++ -isystem C:\MinGW\include\eigen3 -mwindows -o xyz2dxf_gui.exe xyz2dxf_gui.cpp -lkernel32 -lopengl32 -luuid -lcomdlg32_
 
 
 ### Compiler Options Explained
