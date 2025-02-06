@@ -5,6 +5,9 @@ This program provides an intuitive and robust Graphical User Interface (GUI) des
 - **Bicubic Spline (Default)**
 - **Thin Plate Spline (TPS)**
 
+![xyz2dxf_gui](https://github.com/user-attachments/assets/d2579106-1a9e-4dbd-a600-ebd552629dfe)
+
+
 ## Overview
 
 The XYZ to DXF Converter GUI offers a streamlined workflow that allows users to:
