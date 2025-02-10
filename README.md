@@ -6,7 +6,6 @@ This program provides an intuitive and robust Graphical User Interface (GUI) des
 - **Thin Plate Spline (TPS)**
 
 ![xyz2dxf_gui](https://github.com/user-attachments/assets/d2579106-1a9e-4dbd-a600-ebd552629dfe)
-
 ## License
 
 This project is licensed under the MIT License - see the [MIT License](https://opensource.org/license/mit) for details.
