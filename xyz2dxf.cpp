@@ -123,6 +123,10 @@ static double thinPlateSplineInterpolate(double x, double y,
                                          const std::vector<double> &w,
                                          const std::array<double, 3> &a);
 
+static void applyGaussianSmoothingEigen(Eigen::MatrixXd &zGrid,
+                                        double sigma = 1.0,
+                                        int kernelRadius = 2);
+										
 static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D> &points,
                                                       double gridSpacing);
 static std::vector<Point3D> generateGridPointsTPS(const std::vector<Point3D> &tpsPoints,
@@ -328,21 +332,72 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
                                             double neighborDist,
                                             double zThresholdFactor)
 {
-    if (points.empty()) return points;
+    if (points.empty()) 
+        return points;
 
+    // ----------------------------------------------------------------------
+    // 1) If neighborDist <= 0: Use *global* mean/std filtering (very fast!)
+    // ----------------------------------------------------------------------
+    if (neighborDist <= 0.0)
+    {
+        // 1a. Compute mean and variance of Z
+        double sumZ  = 0.0;
+        double sumZ2 = 0.0;
+        for (const auto &p : points)
+        {
+            sumZ  += p.z;
+            sumZ2 += (p.z * p.z);
+        }
+        double n = static_cast<double>(points.size());
+        double meanZ  = sumZ / n;
+        double varZ   = (sumZ2 / n) - (meanZ * meanZ);
+        if (varZ < 0.0) 
+            varZ = 0.0;
+        double stdevZ = std::sqrt(varZ);
+
+        // 1b. If stdev is almost zero, all z-values are nearly identical -> keep all
+        if (stdevZ < 1e-15)
+        {
+            // No outliers to remove
+            return points;
+        }
+
+        // 1c. Filter points outside [meanZ ± zThresholdFactor * stdevZ]
+        std::vector<Point3D> result;
+        result.reserve(points.size());
+        for (const auto &p : points)
+        {
+            double diffZ = std::fabs(p.z - meanZ);
+            if (diffZ <= zThresholdFactor * stdevZ)
+            {
+                result.push_back(p);
+            }
+        }
+        result.shrink_to_fit();
+        return result;
+    }
+
+    // ----------------------------------------------------------------------
+    // 2) If neighborDist > 0: keep the ORIGINAL neighbor-based logic
+    // ----------------------------------------------------------------------
     double neighborDistSq = neighborDist * neighborDist;
     double xMin, xMax, yMin, yMax;
     computeBoundingBox(points, xMin, xMax, yMin, yMax);
 
-    const size_t gridSizeX = static_cast<size_t>(std::ceil((xMax - xMin) / neighborDist)) + 1;
-    const size_t gridSizeY = static_cast<size_t>(std::ceil((yMax - yMin) / neighborDist)) + 1;
+    size_t gridSizeX = static_cast<size_t>(
+        std::ceil((xMax - xMin) / neighborDist)) + 1;
+    size_t gridSizeY = static_cast<size_t>(
+        std::ceil((yMax - yMin) / neighborDist)) + 1;
+
     std::vector<std::vector<size_t>> grid(gridSizeX * gridSizeY);
 
-    // Bin indices
+    // Bin points
     for (size_t i = 0; i < points.size(); i++)
     {
-        size_t ix = static_cast<size_t>(std::floor((points[i].x - xMin) / neighborDist));
-        size_t iy = static_cast<size_t>(std::floor((points[i].y - yMin) / neighborDist));
+        size_t ix = static_cast<size_t>(
+            std::floor((points[i].x - xMin) / neighborDist));
+        size_t iy = static_cast<size_t>(
+            std::floor((points[i].y - yMin) / neighborDist));
         if (ix >= gridSizeX) ix = gridSizeX - 1;
         if (iy >= gridSizeY) iy = gridSizeY - 1;
         grid[ix * gridSizeY + iy].push_back(i);
@@ -360,10 +415,9 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
 #pragma omp for nowait
         for (size_t i = 0; i < points.size(); i++)
         {
-            const auto &pi = points[i];
-
-            size_t ix = static_cast<size_t>(std::floor((pi.x - xMin) / neighborDist));
-            size_t iy = static_cast<size_t>(std::floor((pi.y - yMin) / neighborDist));
+            const Point3D &pi = points[i];
+            size_t ix = (size_t)std::floor((pi.x - xMin) / neighborDist);
+            size_t iy = (size_t)std::floor((pi.y - yMin) / neighborDist);
             if (ix >= gridSizeX) ix = gridSizeX - 1;
             if (iy >= gridSizeY) iy = gridSizeY - 1;
 
@@ -371,25 +425,27 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
             double sumZ2 = 0.0;
             size_t count = 0;
 
-            // local neighborhood
+            // 3x3 neighborhood in the grid
             for (int gx = (int)ix - 1; gx <= (int)ix + 1; gx++)
             {
                 for (int gy = (int)iy - 1; gy <= (int)iy + 1; gy++)
                 {
-                    if (gx < 0 || gy < 0 ||
-                        (size_t)gx >= gridSizeX || (size_t)gy >= gridSizeY)
+                    if (gx < 0 || gy < 0 || 
+                        (size_t)gx >= gridSizeX || 
+                        (size_t)gy >= gridSizeY) 
                         continue;
-                    const size_t neighborIdx = (size_t)gx * gridSizeY + (size_t)gy;
+                    
+                    size_t neighborIdx = (size_t)gx * gridSizeY + (size_t)gy;
                     for (auto j : grid[neighborIdx])
                     {
-                        const auto &pj = points[j];
+                        const Point3D &pj = points[j];
                         double dx = pi.x - pj.x;
                         double dy = pi.y - pj.y;
                         double distSq = dx * dx + dy * dy;
                         if (distSq <= neighborDistSq)
                         {
                             sumZ  += pj.z;
-                            sumZ2 += pj.z * pj.z;
+                            sumZ2 += (pj.z * pj.z);
                             count++;
                         }
                     }
@@ -414,19 +470,21 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
                 }
             }
         }
+
 #pragma omp critical
         {
-            finalResult.insert(finalResult.end(), localResult.begin(), localResult.end());
+            finalResult.insert(finalResult.end(), 
+                               localResult.begin(), 
+                               localResult.end());
         }
     }
 #else
-    // Non-OpenMP
+    // Non-OpenMP version
     for (size_t i = 0; i < points.size(); i++)
     {
-        const auto &pi = points[i];
-
-        size_t ix = static_cast<size_t>(std::floor((pi.x - xMin) / neighborDist));
-        size_t iy = static_cast<size_t>(std::floor((pi.y - yMin) / neighborDist));
+        const Point3D &pi = points[i];
+        size_t ix = (size_t)std::floor((pi.x - xMin) / neighborDist);
+        size_t iy = (size_t)std::floor((pi.y - yMin) / neighborDist);
         if (ix >= gridSizeX) ix = gridSizeX - 1;
         if (iy >= gridSizeY) iy = gridSizeY - 1;
 
@@ -438,19 +496,22 @@ static std::vector<Point3D> removeZOutliers(const std::vector<Point3D> &points,
         {
             for (int gy = (int)iy - 1; gy <= (int)iy + 1; gy++)
             {
-                if (gx < 0 || gy < 0 ||
-                    (size_t)gx >= gridSizeX || (size_t)gy >= gridSizeY)
+                if (gx < 0 || gy < 0 || 
+                    (size_t)gx >= gridSizeX || 
+                    (size_t)gy >= gridSizeY) 
                     continue;
+                
                 size_t neighborIdx = (size_t)gx * gridSizeY + (size_t)gy;
-                for (const auto &pj : grid[neighborIdx])
+                for (auto j : grid[neighborIdx])
                 {
-                    double dx = pi.x - points[pj].x;
-                    double dy = pi.y - points[pj].y;
+                    const Point3D &pj = points[j];
+                    double dx = pi.x - pj.x;
+                    double dy = pi.y - pj.y;
                     double distSq = dx * dx + dy * dy;
                     if (distSq <= neighborDistSq)
                     {
-                        sumZ  += points[pj].z;
-                        sumZ2 += points[pj].z * points[pj].z;
+                        sumZ  += pj.z;
+                        sumZ2 += (pj.z * pj.z);
                         count++;
                     }
                 }
@@ -833,14 +894,84 @@ static void computeDerivativesEigen(const Eigen::MatrixXd &zGrid,
 /*****************************************************************************
  * 5) generateGridPointsBicubic
  ****************************************************************************/
+static void applyGaussianSmoothingEigen(Eigen::MatrixXd &zGrid,
+                                        double sigma,
+                                        int kernelRadius)
+{
+    if (zGrid.size() == 0) return;
+    if (kernelRadius < 1) return; // no smoothing
+
+    // 1) Build 1D Gaussian kernel
+    const int size = 2 * kernelRadius + 1;
+    Eigen::VectorXd kernel(size);
+    const double invTwoSigma2 = 1.0 / (2.0 * sigma * sigma);
+    double sum = 0.0;
+    for (int i = 0; i < size; i++)
+    {
+        int x = i - kernelRadius;
+        double val = std::exp(- (x * x) * invTwoSigma2);
+        kernel(i) = val;
+        sum += val;
+    }
+    // Normalize kernel
+    for (int i = 0; i < size; i++)
+    {
+        kernel(i) /= sum;
+    }
+
+    // 2) Temporary buffers
+    Eigen::MatrixXd tempGrid = zGrid;
+
+    // 3) Convolve each row with the 1D kernel
+    const int rows = (int)zGrid.rows();
+    const int cols = (int)zGrid.cols();
+
+    // -- Horizontal pass
+    for (int r = 0; r < rows; r++)
+    {
+        for (int c = 0; c < cols; c++)
+        {
+            double acc = 0.0;
+            for (int k = -kernelRadius; k <= kernelRadius; k++)
+            {
+                int cc = c + k;
+                if (cc < 0) cc = 0;
+                if (cc >= cols) cc = cols - 1;
+                acc += zGrid(r, cc) * kernel(k + kernelRadius);
+            }
+            tempGrid(r, c) = acc;
+        }
+    }
+
+    // -- Vertical pass
+    for (int c = 0; c < cols; c++)
+    {
+        for (int r = 0; r < rows; r++)
+        {
+            double acc = 0.0;
+            for (int k = -kernelRadius; k <= kernelRadius; k++)
+            {
+                int rr = r + k;
+                if (rr < 0) rr = 0;
+                if (rr >= rows) rr = rows - 1;
+                acc += tempGrid(rr, c) * kernel(k + kernelRadius);
+            }
+            zGrid(r, c) = acc;
+        }
+    }
+}
+
 static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D> &points,
                                                       double gridSpacing)
 {
-    if (points.empty()) return {};
+    if (points.empty())
+        return {};
 
+    // 1) bounding box
     double dataXMin, dataXMax, dataYMin, dataYMax;
     computeBoundingBox(points, dataXMin, dataXMax, dataYMin, dataYMax);
 
+    // 2) expand bounds slightly
     double margin = 1.5 * gridSpacing;
     double xMin = dataXMin - margin;
     double xMax = dataXMax + margin;
@@ -849,56 +980,85 @@ static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D>
 
     double width  = xMax - xMin;
     double height = yMax - yMin;
-    if (width <= 0.0)   width  = 1.0;
-    if (height <= 0.0)  height = 1.0;
+    if (width  <= 0.0) width  = 1.0;
+    if (height <= 0.0) height = 1.0;
 
-    Eigen::Index Nx = static_cast<Eigen::Index>(std::ceil(width  / gridSpacing)) + 1;
-    Eigen::Index Ny = static_cast<Eigen::Index>(std::ceil(height / gridSpacing)) + 1;
+    const Eigen::Index Nx = Eigen::Index(std::ceil(width  / gridSpacing)) + 1;
+    const Eigen::Index Ny = Eigen::Index(std::ceil(height / gridSpacing)) + 1;
 
+    // Create a zGrid of Nx x Ny
     Eigen::MatrixXd zGrid(Nx, Ny);
     zGrid.setConstant(std::numeric_limits<double>::quiet_NaN());
 
-    Eigen::MatrixXi countGrid = Eigen::MatrixXi::Zero(Nx, Ny);
+    // For weighting inside each cell:
+    Eigen::MatrixXd wSum(Nx, Ny); // sum of IDW weights
+    wSum.setConstant(0.0);
 
-    auto clampIndex = [&](double coord, double cmin, double cmax, double spc, Eigen::Index N) {
+    // reflection-based indexing
+    auto clampIndex = [&](double coord, double cmin, double cmax,
+                          double spacing, Eigen::Index NxOrNy) -> Eigen::Index
+    {
         double rc = reflectCoordinate(coord, cmin, cmax);
         double offset = rc - cmin;
-        Eigen::Index idx = static_cast<Eigen::Index>(std::floor(offset / spc));
-        if (idx < 0)   idx = 0;
-        if (idx >= N)  idx = N - 1;
+        Eigen::Index idx = (Eigen::Index)std::floor(offset / spacing);
+        if (idx < 0)       idx = 0;
+        if (idx >= NxOrNy) idx = NxOrNy - 1;
         return idx;
     };
 
+    // 3) Bin each real point into the grid with Inverse-Distance weighting
+    //    to get a “softer” average inside each cell:
     for (const auto &p : points)
     {
+        // Cell center in the grid
         Eigen::Index ix = clampIndex(p.x, xMin, xMax, gridSpacing, Nx);
         Eigen::Index iy = clampIndex(p.y, yMin, yMax, gridSpacing, Ny);
 
+        // Compute distance from p to the cell center in x,y (approx).
+        // Or you can do a more accurate approach with actual Nx,Ny offsets if you want.
+        double cx = xMin + (static_cast<double>(ix) + 0.5) * gridSpacing;
+        double cy = yMin + (static_cast<double>(iy) + 0.5) * gridSpacing;
+        double dx = p.x - cx;
+        double dy = p.y - cy;
+        double dist2 = dx * dx + dy * dy;
+        double w = 1.0 / (1e-6 + dist2); // IDW weight
+
         if (std::isnan(zGrid(ix, iy)))
         {
-            zGrid(ix, iy) = p.z;
+            zGrid(ix, iy) = p.z * w;
         }
         else
         {
-            zGrid(ix, iy) += p.z;
+            zGrid(ix, iy) += p.z * w;
         }
-        countGrid(ix, iy) += 1;
+        wSum(ix, iy) += w;
     }
+
+    // 4) Where we have sums, divide by total weight:
     for (Eigen::Index i = 0; i < Nx; i++)
     {
         for (Eigen::Index j = 0; j < Ny; j++)
         {
-            if (countGrid(i, j) > 0)
+            if (!std::isnan(zGrid(i, j)) && (wSum(i, j) > 1e-12))
             {
-                zGrid(i, j) /= double(countGrid(i, j));
+                zGrid(i, j) /= wSum(i, j);
             }
         }
     }
+
+    // 5) Fill any hole cells (NaNs) using neighbor averaging:
     fillMissingCells(zGrid, 10);
 
+    // 6) [Optional] Additional smoothing for a “softer” result:
+    //    Try sigma=1.0, kernelRadius=2 as a default.
+    //    Increase or decrease if you want more or less smoothing.
+    applyGaussianSmoothingEigen(zGrid, /*sigma=*/1.0, /*kernelRadius=*/2);
+
+    // 7) partial derivatives on the final zGrid
     std::vector<std::vector<double>> dzdx, dzdy, d2zdxdy;
     computeDerivativesEigen(zGrid, dzdx, dzdy, d2zdxdy);
 
+    // 8) Precompute local bicubic coefficients in each cell
     std::vector<std::vector<BicubicSpline>> splineGrid(
         size_t(Nx - 1),
         std::vector<BicubicSpline>(size_t(Ny - 1)));
@@ -927,16 +1087,17 @@ static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D>
             double fxy10 = d2zdxdy[size_t(i + 1)][size_t(j)];
             double fxy11 = d2zdxdy[size_t(i + 1)][size_t(j + 1)];
 
+            // Build 4 vectors
             Eigen::Matrix4d M;
             M << 1,  0,  0,  0,
                  0,  0,  1,  0,
                 -3,  3, -2, -1,
                  2, -2,  1,  1;
 
-            Eigen::Vector4d F(f00, f01, f10, f11);
-            Eigen::Vector4d Fx(fx00, fx01, fx10, fx11);
-            Eigen::Vector4d Fy(fy00, fy01, fy10, fy11);
-            Eigen::Vector4d Fxy(fxy00, fxy01, fxy10, fxy11);
+            Eigen::Vector4d F   (f00, f01, f10, f11);
+            Eigen::Vector4d Fx  (fx00, fx01, fx10, fx11);
+            Eigen::Vector4d Fy  (fy00, fy01, fy10, fy11);
+            Eigen::Vector4d Fxy (fxy00, fxy01, fxy10, fxy11);
 
             Eigen::Vector4d a = M * F;
             Eigen::Vector4d b = M * Fx;
@@ -953,17 +1114,13 @@ static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D>
         }
     }
 
+    // 9) Build final set of (x,y,z) points from the Nx x Ny grid
     std::vector<double> gridX(static_cast<size_t>(Nx));
     std::vector<double> gridY(static_cast<size_t>(Ny));
-
     for (Eigen::Index i = 0; i < Nx; i++)
-    {
-        gridX[static_cast<size_t>(i)] = xMin + double(i) * gridSpacing;
-    }
+        gridX[size_t(i)] = xMin + double(i) * gridSpacing;
     for (Eigen::Index j = 0; j < Ny; j++)
-    {
-        gridY[static_cast<size_t>(j)] = yMin + double(j) * gridSpacing;
-    }
+        gridY[size_t(j)] = yMin + double(j) * gridSpacing;
 
     std::vector<Point3D> bicubicPoints;
     bicubicPoints.reserve(size_t(Nx) * size_t(Ny));
@@ -974,13 +1131,12 @@ static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D>
     {
         std::vector<Point3D> localPts;
 #ifdef _OPENMP
-        size_t threadCount = static_cast<size_t>(omp_get_max_threads());
+        size_t threadCount = size_t(omp_get_max_threads());
+        if (!threadCount) threadCount = 1;
 #else
         size_t threadCount = 1;
 #endif
-        if (threadCount == 0) threadCount = 1;
-
-        localPts.reserve((size_t(Nx) * size_t(Ny)) / threadCount);
+        localPts.reserve((size_t(Nx)*size_t(Ny)) / threadCount);
 
 #ifdef _OPENMP
 #pragma omp for schedule(dynamic)
@@ -989,39 +1145,40 @@ static std::vector<Point3D> generateGridPointsBicubic(const std::vector<Point3D>
         {
             for (Eigen::Index j = 0; j < Ny; j++)
             {
-                double gx = reflectCoordinate(gridX[static_cast<size_t>(i)], dataXMin, dataXMax);
-                double gy = reflectCoordinate(gridY[static_cast<size_t>(j)], dataYMin, dataYMax);
+                // (gx, gy) => actual coordinates in XY
+                double gx = gridX[size_t(i)];
+                double gy = gridY[size_t(j)];
 
+                // Convert (gx, gy) to local cell coords
                 double rx = (gx - xMin) / gridSpacing;
                 double ry = (gy - yMin) / gridSpacing;
-                Eigen::Index ci = static_cast<Eigen::Index>(std::floor(rx));
-                Eigen::Index cj = static_cast<Eigen::Index>(std::floor(ry));
+                Eigen::Index ci = (Eigen::Index)std::floor(rx);
+                Eigen::Index cj = (Eigen::Index)std::floor(ry);
 
-                if (ci < 0)         ci = 0;
-                if (ci >= Nx - 1)   ci = Nx - 2;
-                if (cj < 0)         cj = 0;
-                if (cj >= Ny - 1)   cj = Ny - 2;
+                // Clamp cell indices
+                if (ci < 0)       ci = 0;
+                if (ci >= Nx - 1) ci = Nx - 2;
+                if (cj < 0)       cj = 0;
+                if (cj >= Ny - 1) cj = Ny - 2;
 
                 double tx = rx - double(ci);
                 double ty = ry - double(cj);
 
+                // Retrieve local patch
                 const BicubicSpline &sp = splineGrid[size_t(ci)][size_t(cj)];
 
+                // Evaluate polynomial
                 double t2x = tx * tx, t3x = t2x * tx;
                 double t2y = ty * ty, t3y = t2y * ty;
 
-                double z = sp.a00
-                         + sp.a01 * ty       + sp.a02 * t2y      + sp.a03 * t3y
-                         + sp.a10 * tx       + sp.a11 * tx * ty
-                         + sp.a12 * tx * t2y + sp.a13 * tx * t3y
-                         + sp.a20 * t2x      + sp.a21 * t2x * ty
-                         + sp.a22 * t2x * t2y+ sp.a23 * t2x * t3y
-                         + sp.a30 * t3x      + sp.a31 * t3x * ty
-                         + sp.a32 * t3x * t2y+ sp.a33 * t3x * t3y;
+                double z =
+                    sp.a00 +
+                    sp.a01 * ty +    sp.a02 * t2y +    sp.a03 * t3y +
+                    sp.a10 * tx +    sp.a11 * tx*ty + sp.a12 * tx*t2y + sp.a13 * tx*t3y +
+                    sp.a20 * t2x +   sp.a21 * t2x*ty + sp.a22 * t2x*t2y + sp.a23 * t2x*t3y +
+                    sp.a30 * t3x +   sp.a31 * t3x*ty + sp.a32 * t3x*t2y + sp.a33 * t3x*t3y;
 
-                localPts.push_back(Point3D{gridX[static_cast<size_t>(i)],
-                                           gridY[static_cast<size_t>(j)],
-                                           z});
+                localPts.push_back({ gx, gy, z });
             }
         }
 #ifdef _OPENMP
