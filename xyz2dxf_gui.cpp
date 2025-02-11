@@ -317,9 +317,12 @@ static std::vector<Point3D> subsamplePointsUniformly(const std::vector<Point3D> 
                                                      size_t maxTPSPoints);
 
 // -- TPS related:
-static void solveThinPlateSpline(const std::vector<Point3D> &pts,
+
+static void solveThinPlateSplineEigen(const std::vector<Point3D> &pts,
                                  std::vector<double> &w,
-                                 std::array<double, 3> &a);
+                                 std::array<double, 3> &a,
+                                 double lambda); // optional regularization
+								 
 static double thinPlateSplineInterpolate(double x, double y,
                                          const std::vector<Point3D> &pts,
                                          const std::vector<double> &w,
@@ -864,115 +867,94 @@ static std::vector<Point3D> subsamplePointsUniformly(const std::vector<Point3D> 
 /*****************************************************************************
  * 7) Solve Thin Plate Spline (manual approach)
  ****************************************************************************/
-static void solveThinPlateSpline(const std::vector<Point3D> &pts,
-                                 std::vector<double> &w,
-                                 std::array<double, 3> &a)
+
+static void solveThinPlateSplineEigen(const std::vector<Point3D> &pts,
+                                      std::vector<double> &w,
+                                      std::array<double, 3> &a,
+                                      double lambda = 0.0) // optional regularization
 {
+    using namespace Eigen;
+
     const size_t n = pts.size();
+    w.clear();
+    a = {0.0, 0.0, 0.0};
+
     if (n == 0)
-    {
-        w.clear();
-        a = {0.0, 0.0, 0.0};
         return;
-    }
 
-    // (Same old manual approach)
-    std::vector<std::vector<double>> A(n + 3, std::vector<double>(n + 3, 0.0));
-    std::vector<double> B_vec(n + 3, 0.0);
+    // We'll build an (n+3) x (n+3) system:
+    // |  K   P  |
+    // |  P^T 0  |
+    // Where:
+    //   K(i,j) = r^2 * log(r^2), r = distance between pts[i], pts[j]
+    //   P(i) = [1, x_i, y_i], i in [0..n-1]
+    //
+    // Also note optional "lambda" on the diagonal of K for smoothing (regularization).
 
-    const double eps = 1e-12;
+    const int N = static_cast<int>(n) + 3;
+    MatrixXd M(N, N);
+    M.setZero();
+
+    VectorXd B(N);
+    B.setZero();
+
+    // 1) Fill top-left block (K) for i,j in [0..n-1]
     for (size_t i = 0; i < n; i++)
     {
         for (size_t j = 0; j < n; j++)
         {
             if (i == j)
             {
-                A[i][j] = 0.0;
+                // Diagonal can have a regularization term lambda:
+                M(int(i), int(j)) = lambda; 
             }
             else
             {
                 double dx = pts[i].x - pts[j].x;
                 double dy = pts[i].y - pts[j].y;
-                double r2 = dx * dx + dy * dy;
-                A[i][j] = (r2 > 1e-30) ? (r2 * std::log(r2 + eps)) : 0.0;
+                double r2 = dx*dx + dy*dy;
+                if (r2 < 1e-30)
+                {
+                    M(int(i), int(j)) = 0.0;
+                }
+                else
+                {
+                    M(int(i), int(j)) = r2 * std::log(r2 + 1e-12);
+                }
             }
         }
-        B_vec[i] = pts[i].z;
+        // RHS:
+        B(int(i)) = pts[i].z;
     }
-    // Fill P
+
+    // 2) Fill P block in top-right [i, n..n+2] and bottom-left [n..n+2, i]
     for (size_t i = 0; i < n; i++)
     {
-        A[i][n]     = 1.0;
-        A[i][n + 1] = pts[i].x;
-        A[i][n + 2] = pts[i].y;
+        M(int(i), int(n)   ) = 1.0;           // P(i,0)
+        M(int(i), int(n+1)) = pts[i].x;       // P(i,1)
+        M(int(i), int(n+2)) = pts[i].y;       // P(i,2)
 
-        A[n][i]     = 1.0;
-        A[n + 1][i] = pts[i].x;
-        A[n + 2][i] = pts[i].y;
+        M(int(n),   int(i)) = 1.0;           // P^T(0,i)
+        M(int(n+1), int(i)) = pts[i].x;       // P^T(1,i)
+        M(int(n+2), int(i)) = pts[i].y;       // P^T(2,i)
     }
 
-    // Gaussian elimination
-    for (size_t c = 0; c < n + 3; c++)
+    // 3) Solve M * X = B
+    // X = [w_0, w_1, ..., w_(n-1), a0, a1, a2]
+
+    // Use a robust solver (e.g. ColPivHouseholderQR or FullPivLU, etc.)
+    ColPivHouseholderQR<MatrixXd> solver(M);
+    VectorXd X = solver.solve(B);
+
+    // 4) Extract results
+    w.resize(n);
+    for (size_t i = 0; i < n; i++)
     {
-        // pivot
-        size_t pivot = c;
-        double maxVal = std::fabs(A[c][c]);
-        for (size_t r = c + 1; r < n + 3; r++)
-        {
-            if (std::fabs(A[r][c]) > maxVal)
-            {
-                pivot = r;
-                maxVal = std::fabs(A[r][c]);
-            }
-        }
-        if (pivot != c)
-        {
-            std::swap(A[c], A[pivot]);
-            std::swap(B_vec[c], B_vec[pivot]);
-        }
-        if (std::fabs(A[c][c]) < 1e-20)
-            continue;
-
-        double pivotVal = A[c][c];
-        for (size_t j = c; j < n + 3; j++)
-        {
-            A[c][j] /= pivotVal;
-        }
-        B_vec[c] /= pivotVal;
-
-        for (size_t r = c + 1; r < n + 3; r++)
-        {
-            double factor = A[r][c];
-            for (size_t j = c; j < n + 3; j++)
-            {
-                A[r][j] -= factor * A[c][j];
-            }
-            B_vec[r] -= factor * B_vec[c];
-        }
+        w[i] = X(int(i));
     }
-    // Back-substitute
-    for (size_t c2 = n + 3; c2 > 0; c2--)
-    {
-        size_t c = c2 - 1;
-        double sum = 0.0;
-        for (size_t j = c + 1; j < n + 3; j++)
-        {
-            sum += A[c][j] * B_vec[j];
-        }
-        if (std::fabs(A[c][c]) < 1e-20)
-        {
-            B_vec[c] = 0.0;
-        }
-        else
-        {
-            B_vec[c] = (B_vec[c] - sum) / A[c][c];
-        }
-    }
-
-    w.assign(B_vec.begin(), B_vec.begin() + (ptrdiff_t)n);
-    a[0] = B_vec[n];
-    a[1] = B_vec[n + 1];
-    a[2] = B_vec[n + 2];
+    a[0] = X(int(n));     // a0
+    a[1] = X(int(n+1));   // a1
+    a[2] = X(int(n+2));   // a2
 }
 
 /*****************************************************************************
@@ -983,20 +965,26 @@ static double thinPlateSplineInterpolate(double x, double y,
                                          const std::vector<double> &w,
                                          const std::array<double, 3> &a)
 {
-    double val = a[0] + a[1] * x + a[2] * y;
-    const double eps = 1e-12;
+    // Basic RBF formula: z(x,y) = a0 + a1*x + a2*y + SUM_i [ w_i * phi( distance( (x,y), (xi,yi) ) ) ]
+    // Where phi(r) = r^2 * log(r^2)
+
+    double val = a[0] + a[1]*x + a[2]*y;  // polynomial part
+    const size_t n = pts.size();
+    constexpr double EPS = 1e-12;
+
 #ifdef _OPENMP
-#pragma omp parallel for reduction(+ : val)
+#pragma omp parallel for reduction(+:val)
 #endif
-    for (size_t i = 0; i < pts.size(); i++)
+    for (size_t i = 0; i < n; i++)
     {
         double dx = x - pts[i].x;
         double dy = y - pts[i].y;
-        double r2 = dx * dx + dy * dy;
+        double r2 = dx*dx + dy*dy;
         if (r2 > 1e-30)
         {
-            val += w[i] * (r2 * std::log(r2 + eps));
+            val += w[i] * (r2 * std::log(r2 + EPS));
         }
+        // else r^2 ~ 0, contributes ~0
     }
     return val;
 }
@@ -1465,7 +1453,8 @@ static std::vector<Point3D> generateGridPointsTPS(const std::vector<Point3D> &tp
     // Solve TPS
     std::vector<double> w;
     std::array<double, 3> a;
-    solveThinPlateSpline(tpsPoints, w, a);
+    // Optional: pass a small lambda (regularization) if desired. e.g. 1e-6
+    solveThinPlateSplineEigen(tpsPoints, w, a /*, 1e-6 */);
 
     // bounding box
     double xMin, xMax, yMin, yMax;
