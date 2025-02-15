@@ -5,29 +5,30 @@ The **XYZ to DXF Converter GUI** is an intuitive and robust graphical user inter
 
 - **Bicubic Spline (Default)**
 - **Thin Plate Spline (TPS)**
+- 
+![xyz2dxf_gui](https://github.com/user-attachments/assets/e48bf81b-33ae-4039-b50d-181ea254019b)
+## Command-Line Interface (CLI) Usage
 
-![xyz2dxf_gui](https://github.com/user-attachments/assets/d2579106-1a9e-4dbd-a600-ebd552629dfe)
-## License
+```
+xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [GridSpacing] [MaxTPSPoints] [Method]
 
-**MIT License**  
-Copyright (c) 2025 XYZ to DXF Converter Contributors
+<Input_File> = XYZ file path
+<minDist>    = Minimum distance for filtering (double)
+<Precision>  = Decimal places in outputs (int)
+<PDMODE>     = DXF point style (int)
+[GridSpacing]= (optional) default=10.0
+[MaxTPSPoints]= (optional) default=5000 (0 = use all)
+[Method]     = (optional) 0=Bicubic Spline, 1=Thin Plate Spline, default=0
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Example:
+xyz2dxf data.xyz 5.0 2 3 10.0 5000 0
+```
 
 ## Features
 
-### **Dual Interpolation Methods**
+### **Interpolation Methods**
 - **Bicubic Spline (Default):** Ideal for smooth surfaces from regularly spaced or semi-regular datasets.
 - **Thin Plate Spline (TPS):** Designed for scattered and irregularly distributed data points.
-- **Method Selection:** Easily switch between interpolation methods via GUI radio buttons.
-
-### **File Selection via Standard Dialog**
-- **Ease of Use:** Browse files using the standard Windows file dialog.
-- **Flexibility:** Supports selection of large `.xyz` files from any directory.
 
 ### **Configurable Parameters**
 - `minDist`: Minimum allowable distance between points to filter duplicates.
@@ -36,14 +37,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - `GridSpacing`: Sets spacing between grid nodes, impacting interpolation resolution.
 - `MaxTPSPoints`: Limits points used for TPS interpolation (0 = use all available points).
 
-### **Real-Time Status Monitoring**
-- **Progress Feedback:**
-  - Number of points read.
-  - Points remaining after filtering.
-  - Grid points generated.
-  - Total elapsed processing time.
-
-### **Comprehensive Output Generation**
+### **Output Generation**
 - **Filtered Data:** `.filtered.xyz` file with outliers removed.
 - **Interpolated Grid:** `.grid.xyz` file for processed surface data.
 - **DXF File:** `.dxf` file with separate layers for CAD applications.
@@ -143,3 +137,27 @@ To ensure optimal execution, install the latest **Microsoft Visual C++ Redistrib
    - **Interpolated Grid (`.grid.xyz`)**
    - **DXF File (`.dxf`)**
    - **Detailed Report (`.rpt.txt`)**
+
+## License
+
+### **MIT License**  
+
+Copyright (c) 2025 Author
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished
+to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
