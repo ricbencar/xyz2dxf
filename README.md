@@ -5,6 +5,7 @@ The **XYZ to DXF Converter GUI** is an intuitive and robust graphical user inter
 
 - **Bicubic Spline (Default)**
 - **Thin Plate Spline (TPS)**
+
 ![xyz2dxf_gui](https://github.com/user-attachments/assets/e48bf81b-33ae-4039-b50d-181ea254019b)
 ## Command-Line Interface (CLI) Usage
 ```
@@ -112,7 +113,7 @@ To ensure optimal execution, install the latest **Microsoft Visual C++ Redistrib
   - **Adaptive interpolation** is needed for varying densities.
   - You have the computational resources to handle TPS.
 
-## Steps Performed by the Program
+## Calculation Steps
 
 1. **Read Input File:**
    - Parses `.xyz` file to extract X, Y, and Z coordinates.
