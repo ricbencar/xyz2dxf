@@ -5,10 +5,8 @@ The **XYZ to DXF Converter GUI** is an intuitive and robust graphical user inter
 
 - **Bicubic Spline (Default)**
 - **Thin Plate Spline (TPS)**
-- 
 ![xyz2dxf_gui](https://github.com/user-attachments/assets/e48bf81b-33ae-4039-b50d-181ea254019b)
 ## Command-Line Interface (CLI) Usage
-
 ```
 xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [GridSpacing] [MaxTPSPoints] [Method]
 
@@ -73,7 +71,7 @@ To ensure optimal execution, install the latest **Microsoft Visual C++ Redistrib
 
 [Download Latest VC++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
 
-## Interpolation Method Details
+## Interpolation Methods
 
 ### **Bicubic Spline Interpolation**
 #### **Applicability**
