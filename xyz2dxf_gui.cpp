@@ -8,30 +8,6 @@
  * - **Bicubic Spline (Default)**
  * - **Thin Plate Spline (TPS)**
  *
- * **License:**
- * -----------
- * MIT License
- *
- * Copyright (c) 2025 XYZ to DXF Converter Contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
  * **Overview:**
  * The XYZ to DXF Converter GUI offers a streamlined workflow that allows users to:
  * - Select an input `.xyz` file using a standard Windows file dialog.
@@ -1915,7 +1891,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         // Max TPS
         CreateWindowExA(WS_EX_CLIENTEDGE, "STATIC", "Max TPS Points:", WS_VISIBLE | WS_CHILD,
                         20, 220, 120, 20, hwnd, NULL, NULL, NULL);
-        hMaxTPSPoints = CreateWindowExA(WS_EX_CLIENTEDGE, "EDIT", "20000", WS_CHILD | WS_VISIBLE | WS_BORDER,
+        hMaxTPSPoints = CreateWindowExA(WS_EX_CLIENTEDGE, "EDIT", "5000", WS_CHILD | WS_VISIBLE | WS_BORDER,
                                         150, 220, 100, 25, hwnd, (HMENU)IDC_MAX_TPS_POINTS, NULL, NULL);
         CreateWindowA("STATIC", "Max control points for TPS (0=all). Not used in Bicubic.",
                       WS_VISIBLE | WS_CHILD, 260, 220, 500, 20, hwnd, NULL, NULL, NULL);
@@ -2135,3 +2111,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     }
     return 0;
 }
+
+/*
+MIT License
+
+Copyright (c) 2025 Author
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished
+to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/

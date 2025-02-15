@@ -8,31 +8,6 @@
  *       -isystem C:\MinGW\include\eigen3 \
  *       -o xyz2dxf.exe xyz2dxf.cpp
  *
- *
- * **License:**
- * -----------
- * MIT License
- *
- * Copyright (c) 2025 XYZ to DXF Converter Contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
  *****************************************************************************/
 
 #include <iostream>
@@ -1525,7 +1500,7 @@ int main(int argc, char *argv[])
     // Usage:
     // xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [GridSpacing] [MaxTPSPoints] [Method]
     // Example:
-    // xyz2dxf input.xyz 5.0 2 3 10.0 20000 0
+    // xyz2dxf input.xyz 5.0 2 3 10.0 5000 0
 
     if (argc < 5)
     {
@@ -1536,10 +1511,10 @@ int main(int argc, char *argv[])
                   << "  <Precision>  = Decimal places in outputs (int)\n"
                   << "  <PDMODE>     = DXF point style (int)\n"
                   << "  [GridSpacing]= (optional) default=10.0\n"
-                  << "  [MaxTPSPoints]= (optional) default=20000 (0 = use all)\n"
+                  << "  [MaxTPSPoints]= (optional) default=5000 (0 = use all)\n"
                   << "  [Method]     = (optional) 0=Bicubic Spline, 1=Thin Plate Spline, default=0\n\n"
                   << "Example:\n"
-                  << "  " << argv[0] << " data.xyz 5.0 2 3 10.0 20000 0\n";
+                  << "  " << argv[0] << " data.xyz 5.0 2 3 10.0 5000 0\n";
         return 1;
     }
 
@@ -1553,7 +1528,7 @@ int main(int argc, char *argv[])
     double gridSpacing      = 10.0;       // default
     if (argc >= 6) gridSpacing = std::stod(argv[5]);
 
-    size_t maxTPSPoints     = 20000;      // default
+    size_t maxTPSPoints     = 5000;      // default
     if (argc >= 7) maxTPSPoints = static_cast<size_t>(std::stoul(argv[6]));
 
     InterpolationMethod methodUsed = METHOD_BICUBIC;
@@ -1574,3 +1549,27 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+/*
+MIT License
+
+Copyright (c) 2025 Author
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished
+to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
