@@ -2,10 +2,9 @@
 
 ## Overview
 The **XYZ to DXF Converter GUI** is an intuitive and robust graphical user interface (GUI) designed for converting large XYZ datasets into the DXF format. It leverages two sophisticated interpolation techniques to generate high-quality surfaces:
-![xyz2dxf1](https://github.com/user-attachments/assets/3c28421d-6f72-4480-a6bb-3e666f017f3a)
 - **Bicubic Spline (Default)**
 - **Thin Plate Spline (TPS)**
-
+![xyz2dxf1](https://github.com/user-attachments/assets/3c28421d-6f72-4480-a6bb-3e666f017f3a)
 ## Command-Line Interface (CLI) Usage
 ```
 xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [GridSpacing] [MaxTPSPoints] [Method]
