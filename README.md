@@ -68,7 +68,7 @@ To ensure optimal execution, install the latest **Microsoft Visual C++ Redistrib
 [Download Latest VC++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
 
 ## Interpolation Methods
-![xyz2dxf2](https://github.com/user-attachments/assets/937f1433-f2d0-4df5-8f4c-68bd45396bd4)
+![xyz2dxf2](https://github.com/user-attachments/assets/c7d87076-981d-4d31-8bd3-372e4bfc1be2)
 ### **Bicubic Spline Interpolation**
 #### **Applicability**
 - Best for **regularly spaced** or **semi-regularly distributed** datasets.
