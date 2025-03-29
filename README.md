@@ -45,7 +45,7 @@ xyz2dxf data.xyz 5.0 2 3 10.0 5000 0
 To compile the program as a standalone static executable, run:
 
 ```sh
-g++ -O3 -fopenmp -march=native -std=c++17 -Wall -Wextra -pedantic -Wconversion -Wsign-conversion -static -static-libgcc -static-libstdc++ -isystem C:\MinGW\include\eigen3 -mwindows -o xyz2dxf_gui.exe xyz2dxf_gui.cpp -lkernel32 -lopengl32 -luuid -lcomdlg32
+g++ -O3 -fopenmp -march=native -std=c++17 -Wall -Wextra -pedantic -Wconversion -Wsign-conversion -static -static-libgcc -static-libstdc++ -isystem C:\MinGW\include\eigen3 -mwindows -o xyz2dxf_gui.exe xyz2dxf_gui.cpp -lkernel32 -lopengl32 -luuid -lcomdlg32 -lm
 ```
 
 ### **Compiler Options Explained**
@@ -61,6 +61,7 @@ g++ -O3 -fopenmp -march=native -std=c++17 -Wall -Wextra -pedantic -Wconversion -
 - `-o xyz2dxf_gui.exe`: Names the output executable.
 - `xyz2dxf_gui.cpp`: Source file to compile.
 - `-lkernel32 -lopengl32 -luuid -lcomdlg32`: Links essential Windows libraries.
+-  `-lm: Explicitly link the math library (sometimes needed).
 
 ### **Recommended Dependency**
 To ensure optimal execution, install the latest **Microsoft Visual C++ Redistributable**:
