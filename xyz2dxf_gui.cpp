@@ -74,7 +74,7 @@
  * g++ -O3 -fopenmp -march=native -std=c++17 -Wall -Wextra -pedantic \
  *     -Wconversion -Wsign-conversion -static -static-libgcc -static-libstdc++ \
  *     -isystem C:\MinGW\include\eigen3 -mwindows -o xyz2dxf_gui.exe \
- *     xyz2dxf_gui.cpp -lkernel32 -lopengl32 -luuid -lcomdlg32
+ *     xyz2dxf_gui.cpp -lkernel32 -lopengl32 -luuid -lcomdlg32 -lm
  * ```
  *
  * **Compiler Options Explained:**
@@ -95,6 +95,7 @@
  *   - **`xyz2dxf_gui.cpp`**: Indicates the source file to be compiled.
  *   - **`-lkernel32 -lopengl32 -luuid -lcomdlg32`**: Links against essential Windows libraries for GUI
  *     functionality and system operations.
+ *   - **`-lm`**: Explicitly link the math library (sometimes needed).
  *
  * **Recommendation:**
  * -------------------
@@ -1859,7 +1860,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         // Min Dist
         CreateWindowExA(WS_EX_CLIENTEDGE, "STATIC", "Min Dist:", WS_VISIBLE | WS_CHILD,
                         20, 60, 100, 20, hwnd, NULL, NULL, NULL);
-        hMinDist = CreateWindowExA(WS_EX_CLIENTEDGE, "EDIT", "5", WS_CHILD | WS_VISIBLE | WS_BORDER,
+        hMinDist = CreateWindowExA(WS_EX_CLIENTEDGE, "EDIT", "1", WS_CHILD | WS_VISIBLE | WS_BORDER,
                                    150, 60, 100, 25, hwnd, (HMENU)IDC_MIN_DIST, NULL, NULL);
         CreateWindowA("STATIC", "Minimum distance threshold for filtering close points",
                       WS_VISIBLE | WS_CHILD, 260, 60, 500, 20, hwnd, NULL, NULL, NULL);

@@ -4,7 +4,7 @@
  * Example compile (Windows + MinGW + Eigen + OpenMP):
  *
  *   g++ -O3 -fopenmp -march=native -std=c++17 -Wall -Wextra -pedantic \
- *       -Wconversion -Wsign-conversion -static -static-libgcc -static-libstdc++ \
+ *       -Wconversion -Wsign-conversion -static -static-libgcc -static-libstdc++ -lm \
  *       -isystem C:\MinGW\include\eigen3 \
  *       -o xyz2dxf.exe xyz2dxf.cpp
  *
@@ -1500,7 +1500,7 @@ int main(int argc, char *argv[])
     // Usage:
     // xyz2dxf <Input_File> <minDist> <Precision> <PDMODE> [GridSpacing] [MaxTPSPoints] [Method]
     // Example:
-    // xyz2dxf input.xyz 5.0 2 3 10.0 5000 0
+    // xyz2dxf input.xyz 1.0 2 3 10.0 5000 0
 
     if (argc < 5)
     {
@@ -1514,7 +1514,7 @@ int main(int argc, char *argv[])
                   << "  [MaxTPSPoints]= (optional) default=5000 (0 = use all)\n"
                   << "  [Method]     = (optional) 0=Bicubic Spline, 1=Thin Plate Spline, default=0\n\n"
                   << "Example:\n"
-                  << "  " << argv[0] << " data.xyz 5.0 2 3 10.0 5000 0\n";
+                  << "  " << argv[0] << " data.xyz 1.0 2 3 10.0 5000 0\n";
         return 1;
     }
 
